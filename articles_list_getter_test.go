@@ -17,5 +17,5 @@ func Test_Articles_Getter(t *testing.T) {
 		fmt.Println(err)
 		return
 	}
-	t.Logf("%+v", articlesList)
+	t.Logf("\n%+v", articlesList)
 }
