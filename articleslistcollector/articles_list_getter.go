@@ -1,4 +1,4 @@
-package main
+package articleslistcollector
 
 import (
 	"compress/gzip"
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var articles_list_header_template = map[string]string{
+var articlesListHeaderTemplate = map[string]string{
 	"User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36 Edg/101.0.1210.39",
 	"accept":          "application/json, text/plain, */*",
 	"accept-encoding": "gzip, deflate, br",
@@ -20,7 +20,7 @@ var articles_list_header_template = map[string]string{
 }
 
 func addArticlesListPageHeader(req *http.Request) {
-	for k, v := range articles_list_header_template {
+	for k, v := range articlesListHeaderTemplate {
 		req.Header.Add(k, v)
 	}
 }

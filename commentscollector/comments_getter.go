@@ -1,14 +1,14 @@
-package main
+package commentscollector
 
 import (
 	"compress/gzip"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
 
-var comments_header_template = map[string]string{
+var commentsHeaderTemplate = map[string]string{
 	"Host":            "www.acfun.cn",
 	"User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36 Edg/101.0.1210.39",
 	"Accept":          "application/json, text/plain, */*",
@@ -21,7 +21,7 @@ var comments_header_template = map[string]string{
 }
 
 func addCommentsPageHeader(req *http.Request) {
-	for k, v := range comments_header_template {
+	for k, v := range commentsHeaderTemplate {
 		req.Header.Add(k, v)
 	}
 }
@@ -51,7 +51,7 @@ func commentsGetter() []byte {
 		return nil
 	}
 	defer gr.Close()
-	json, err := ioutil.ReadAll(gr)
+	json, err := io.ReadAll(gr)
 	if err != nil {
 		fmt.Println(err)
 		return nil
