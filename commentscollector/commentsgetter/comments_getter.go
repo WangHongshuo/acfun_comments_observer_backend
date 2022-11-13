@@ -1,4 +1,4 @@
-package commentscollector
+package commentsgetter
 
 import (
 	"compress/gzip"
@@ -16,7 +16,7 @@ var commentsHeaderTemplate = map[string]string{
 	"Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
 	"Connection":      "keep-alive",
 	"DNT":             "1",
-	"Referer":         "https://www.acfun.cn/a/ac34857021",
+	"Referer":         "https://www.acfun.cn/a/ac39658906",
 	"TE":              "Trailers",
 }
 
@@ -28,7 +28,7 @@ func addCommentsPageHeader(req *http.Request) {
 
 func commentsGetter() []byte {
 	url := fmt.Sprintf("https://www.acfun.cn/rest/pc-direct/comment/listByFloor?sourceId=%v&sourceType=3&page=%v&pivotCommentId=0&newPivotCommentId=0&t=%v&supportZtEmot=true",
-		"34857021", 1, time.Now().UnixMilli())
+		"39658906", 1, time.Now().UnixMilli())
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

@@ -1,4 +1,4 @@
-package articleslistcollector
+package articleslistgetter
 
 import (
 	"compress/gzip"
