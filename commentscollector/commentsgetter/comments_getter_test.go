@@ -27,11 +27,16 @@ func Test_UnmarshalJsonBody(t *testing.T) {
 }
 
 func Test_CommentsGetter(t *testing.T) {
-	buff := bytes.NewBuffer(commentsGetter())
+	ret, err := commentsGetter("http://159.138.57.97:4003", "39658906")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
+	buff := bytes.NewBuffer(ret)
 	comments := &CommentsJsonResponse{}
 	decoder := json.NewDecoder(buff)
-	err := decoder.Decode(comments)
+	err = decoder.Decode(comments)
 	if err != nil {
 		fmt.Println(err)
 		return

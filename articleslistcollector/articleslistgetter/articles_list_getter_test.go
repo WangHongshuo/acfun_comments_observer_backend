@@ -27,11 +27,17 @@ func Test_UnmarshalJsonBody(t *testing.T) {
 }
 
 func Test_ArticlesGetter(t *testing.T) {
-	buff := bytes.NewBuffer(articlesListGetter())
+	ret, err := articlesListGetter("http://159.138.57.97:4003")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	buff := bytes.NewBuffer(ret)
 	articlesList := &ArticlesList{}
 
 	decoder := json.NewDecoder(buff)
-	err := decoder.Decode(articlesList)
+	err = decoder.Decode(articlesList)
 	if err != nil {
 		fmt.Println(err)
 		return

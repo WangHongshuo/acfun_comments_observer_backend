@@ -3,11 +3,15 @@ package articleslistgetter
 import (
 	"compress/gzip"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/WangHongshuo/AcfunCommentsSplider-go/internal/util"
 )
+
+const articlesRequestUrl = "https://www.acfun.cn/rest/pc-direct/article/feed"
 
 var articlesListHeaderTemplate = map[string]string{
 	"User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36 Edg/101.0.1210.39",
@@ -30,8 +34,8 @@ func getUrlPayload() url.Values {
 	v.Add("cursor", "first_page")
 	v.Add("onlyOriginal", "false")
 	v.Add("limit", "10")
-	v.Add("sortType", "hotScore")
-	v.Add("timeRange", "oneDay")
+	v.Add("sortType", "lastCommentTime")
+	v.Add("timeRange", "all")
 	v.Add("realmId", "5")  // 杂谈
 	v.Add("realmId", "22") // 体育
 	v.Add("realmId", "28") // 新闻资讯
@@ -39,36 +43,42 @@ func getUrlPayload() url.Values {
 	return v
 }
 
-func articlesListGetter() []byte {
-	url_path := "https://www.acfun.cn/rest/pc-direct/article/feed"
-	client := &http.Client{}
-	payload := getUrlPayload().Encode()
-	req, err := http.NewRequest("POST", url_path, strings.NewReader(payload))
+func articlesListGetter(porxyAddr string) ([]byte, error) {
+	client, err := util.NewHttpClient(porxyAddr)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, err
+	}
+
+	payload := getUrlPayload().Encode()
+	req, err := http.NewRequest("POST", articlesRequestUrl, strings.NewReader(payload))
+	if err != nil {
+		return nil, err
 	}
 	addArticlesListPageHeader(req)
 
 	resp, err := client.Do(req)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		fmt.Printf("err: %v, code: %v", err, resp.StatusCode)
-		return nil
+	if err != nil {
+		return nil, err
 	}
+	if resp == nil {
+		return nil, fmt.Errorf("http resp is nil")
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("http status code: %v", resp.StatusCode)
+	}
+
 	// gzip解压
 	gr, err := gzip.NewReader(resp.Body)
 	if err != nil {
-		fmt.Println(err)
 		if gr != nil {
 			gr.Close()
 		}
-		return nil
+		return nil, err
 	}
 	defer gr.Close()
-	json, err := ioutil.ReadAll(gr)
+	json, err := io.ReadAll(gr)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, err
 	}
-	return json
+	return json, nil
 }

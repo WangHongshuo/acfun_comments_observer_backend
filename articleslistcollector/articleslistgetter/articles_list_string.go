@@ -9,6 +9,7 @@ import (
 // For Test
 func (a ArticlesList) String() string {
 	var buff bytes.Buffer
+	buff.WriteString(fmt.Sprintf("----------Total: %v----------\n", len(a.Articles)))
 	for i := range a.Articles {
 		buff.WriteString("----------\n")
 		buff.WriteString(a.Articles[i].String())
