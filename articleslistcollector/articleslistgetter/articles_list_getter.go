@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/WangHongshuo/AcfunCommentsSplider-go/internal/util"
+	"github.com/WangHongshuo/acfuncommentsspider-go/internal/util"
 )
 
 const articlesRequestUrl = "https://www.acfun.cn/rest/pc-direct/article/feed"

@@ -1,0 +1,1 @@
+gentool -db "postgres" -dsn "host=localhost user=postgres password=1 dbname=acfun_comm port=5432 sslmode=disable TimeZone=Asia/Shanghai" -tables "comment,article"

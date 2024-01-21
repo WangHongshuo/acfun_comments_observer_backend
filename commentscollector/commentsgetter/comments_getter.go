@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/WangHongshuo/AcfunCommentsSplider-go/internal/util"
+	"github.com/WangHongshuo/acfuncommentsspider-go/internal/util"
 )
 
 var commentsHeaderTemplate = map[string]string{
