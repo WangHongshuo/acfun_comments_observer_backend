@@ -1,0 +1,22 @@
+server:
+  port: 5011
+  host: localhost
+
+database:
+  host: localhost
+  port: 5432
+  username: postgres
+  password: 1
+  tablename: acfun_comm
+
+proxyServer:
+  port: 5010
+  host: localhost
+
+spiderWorkers:
+  - type: "comments"
+    prefix: "comments-worker-"
+    spec: 2
+  - type: "articles"
+    prefix: "articles-worker-"
+    spec: 1
