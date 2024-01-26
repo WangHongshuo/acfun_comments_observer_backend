@@ -8,6 +8,7 @@ import (
 	"os"
 	"testing"
 
+	_ "github.com/WangHongshuo/acfuncommentsspider-go/cfg"
 	"github.com/stretchr/testify/assert"
 )
 

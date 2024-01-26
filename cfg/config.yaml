@@ -20,3 +20,13 @@ spiderWorkers:
   - type: "articles"
     prefix: "articles-worker-"
     spec: 1
+
+articlesRequestUrl: "https://www.acfun.cn/rest/pc-direct/article/feed"
+
+articleUrl:
+  - referer: "https://www.acfun.cn/v/list110/index.htm"
+    realmId:
+      - "5" # 杂谈
+      - "22" # 体育
+      - "28" # 新闻资讯
+      - "23" # 影视

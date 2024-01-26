@@ -8,6 +8,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/WangHongshuo/acfuncommentsspider-go/cfg"
+	_ "github.com/WangHongshuo/acfuncommentsspider-go/cfg"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +29,7 @@ func Test_UnmarshalJsonBody(t *testing.T) {
 }
 
 func Test_ArticlesGetter(t *testing.T) {
-	ret, err := articlesListGetter("http://159.138.57.97:4003")
+	ret, err := articlesListGetter("http://159.138.57.97:4003", cfg.GlobalConfig.ArticleUrl[0])
 	if err != nil {
 		fmt.Println(err)
 		return
