@@ -13,12 +13,12 @@ proxyServer:
   port: 5010
   host: localhost
 
-spiderWorkers:
+spiders:
   - type: "comments"
-    prefix: "comments-worker-"
+    prefix: "comments-spider-"
     spec: 2
   - type: "articles"
-    prefix: "articles-worker-"
+    prefix: "articles-spider-"
     spec: 1
 
 articlesRequestUrl: "https://www.acfun.cn/rest/pc-direct/article/feed"

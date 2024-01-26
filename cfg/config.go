@@ -11,12 +11,12 @@ import (
 var GlobalConfig *Config
 
 type Config struct {
-	Server             ServerConfig         `yaml:"server"`
-	Database           DatabaseConfig       `yaml:"database"`
-	ProxyServer        ProxyServerConfig    `yaml:"proxyServer"`
-	SpiderWorkers      []SpiderWorkerConfig `yaml:"spiderWorkers"`
-	ArticlesRequestUrl string               `yaml:"articlesRequestUrl"`
-	ArticleUrl         []ArticleUrlConfig   `yaml:"articleUrl"`
+	Server             ServerConfig       `yaml:"server"`
+	Database           DatabaseConfig     `yaml:"database"`
+	ProxyServer        ProxyServerConfig  `yaml:"proxyServer"`
+	Spiders            []SpiderConfig     `yaml:"spiders"`
+	ArticlesRequestUrl string             `yaml:"articlesRequestUrl"`
+	ArticleUrl         []ArticleUrlConfig `yaml:"articleUrl"`
 }
 
 type ServerConfig struct {
@@ -37,7 +37,7 @@ type ProxyServerConfig struct {
 	Host string `yaml:"host"`
 }
 
-type SpiderWorkerConfig struct {
+type SpiderConfig struct {
 	Type   string `yaml:"type"`
 	Prefix string `yaml:"prefix"`
 	Spec   int    `yaml:"spec"`

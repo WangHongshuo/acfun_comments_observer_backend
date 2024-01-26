@@ -1,4 +1,4 @@
-package commentsgetter
+package getter
 
 import (
 	"bytes"
@@ -24,8 +24,8 @@ func (c CommentsJsonResponse) String() string {
 // For Test
 func (c Comment) String() string {
 	var buff bytes.Buffer
-	buff.WriteString(fmt.Sprintf("Cid: %v, Floor: %v, UserName: %v, IsUp: %v, Timestamp: %v, SourceID: %v, IsDelete: %v, IsUpDelete: %v\n",
-		c.Cid, c.Floor, c.UserName, c.IsUp, time.UnixMilli(c.Timestamp).Format(time.RFC3339), c.SourceID, c.IsDelete, c.IsDelete))
+	buff.WriteString(fmt.Sprintf("Cid: %v, Floor: %v, Timestamp: %v, SourceID: %v, IsDelete: %v, IsUpDelete: %v\n",
+		c.Cid, c.Floor, time.UnixMilli(c.Timestamp).Format(time.RFC3339), c.SourceID, c.IsDelete, c.IsDelete))
 	buff.WriteString(fmt.Sprintf("Content: %v\n", c.Content))
 	return buff.String()
 }

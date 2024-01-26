@@ -1,4 +1,4 @@
-package commentsgetter
+package getter
 
 import (
 	"bytes"

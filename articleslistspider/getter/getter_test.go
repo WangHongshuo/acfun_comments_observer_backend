@@ -1,4 +1,4 @@
-package articleslistgetter
+package getter
 
 import (
 	"bytes"
