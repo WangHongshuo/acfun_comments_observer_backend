@@ -17,6 +17,16 @@ type Config struct {
 	Spiders            []SpiderConfig     `yaml:"spiders"`
 	ArticlesRequestUrl string             `yaml:"articlesRequestUrl"`
 	ArticleUrl         []ArticleUrlConfig `yaml:"articleUrl"`
+	Logger             LoggerConfig       `yaml:"logger"`
+}
+
+type LoggerConfig struct {
+	Level      string `yaml:"level"`
+	OnSave     bool   `yaml:"onSave"`
+	Path       string `yaml:"path"`
+	MaxSize    int    `yaml:"maxSize"`
+	MaxBackups int    `yaml:"maxBackups"`
+	MaxAge     int    `yaml:"maxAge"`
 }
 
 type ServerConfig struct {

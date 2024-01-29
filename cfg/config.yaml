@@ -9,6 +9,14 @@ database:
   password: 1
   tablename: acfun_comm
 
+logger:
+  level: "debug"
+  onSave: false
+  path: "./logs/runlog.log"
+  maxSize: 10 # 单个日志最大体积MB
+  maxBackups: 10 # 最大日志文件数量
+  maxAge: 7 # 保留天数
+
 proxyServer:
   port: 5010
   host: localhost

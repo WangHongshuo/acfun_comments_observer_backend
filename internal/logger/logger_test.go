@@ -1,50 +1,17 @@
 package logger
 
 import (
-	"os"
 	"sync"
 	"testing"
 
-	"github.com/natefinch/lumberjack"
+	_ "github.com/WangHongshuo/acfuncommentsspider-go/cfg"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-var isWriteLogToFiles = false
-
-func enableWriteLogToFiles() {
-	isWriteLogToFiles = true
-}
-
-func disableWriteLogToFiles() {
-	isWriteLogToFiles = false
-}
-
-func newEncoder() zapcore.Encoder {
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = zapcore.RFC3339TimeEncoder
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
-	return zapcore.NewConsoleEncoder(encoderConfig)
-}
-
-func newLogWriter() zapcore.WriteSyncer {
-	syncConsole := zapcore.AddSync(os.Stderr)
-	if !isWriteLogToFiles {
-		return zapcore.AddSync(syncConsole)
-	}
-	rollingFilesCfg := &lumberjack.Logger{
-		Filename:   "./log/test.log",
-		MaxSize:    1,
-		MaxBackups: 2,
-		MaxAge:     1,
-		Compress:   true,
-	}
-	return zapcore.NewMultiWriteSyncer(syncConsole, zapcore.AddSync(rollingFilesCfg))
-}
-
 func Test_Logger_LogLevel(t *testing.T) {
 	atom := zap.NewAtomicLevel()
-	core := zapcore.NewCore(newEncoder(), newLogWriter(), atom)
+	core := zapcore.NewCore(newEncoder(), newLogWriter(false), atom)
 	logger := zap.New(core, zap.AddCaller()).Sugar().Named("Collector")
 
 	atom.SetLevel(zapcore.ErrorLevel)
@@ -61,12 +28,10 @@ func Test_Logger_LogLevel(t *testing.T) {
 }
 
 func Test_Logger_WriteToFiles(t *testing.T) {
-	enableWriteLogToFiles()
-	defer disableWriteLogToFiles()
 
 	atom := zap.NewAtomicLevel()
 
-	core := zapcore.NewCore(newEncoder(), newLogWriter(), atom)
+	core := zapcore.NewCore(newEncoder(), newLogWriter(true), atom)
 	logger := zap.New(core, zap.AddCaller()).Sugar().Named("Collector")
 
 	for i := 0; i <= 5000; i++ {
@@ -91,12 +56,10 @@ func (i *ID) GetID() int {
 }
 
 func Test_Logger_Concurrent(t *testing.T) {
-	enableWriteLogToFiles()
-	defer disableWriteLogToFiles()
 
 	atom := zap.NewAtomicLevel()
 
-	core := zapcore.NewCore(newEncoder(), newLogWriter(), atom)
+	core := zapcore.NewCore(newEncoder(), newLogWriter(false), atom)
 	logger := zap.New(core, zap.AddCaller()).Sugar().Named("Collector")
 
 	wg := &sync.WaitGroup{}
