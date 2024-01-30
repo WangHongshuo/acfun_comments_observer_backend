@@ -10,15 +10,17 @@ import (
 	"github.com/asynkron/protoactor-go/actor"
 )
 
-var system = actor.NewActorSystem()
-var log = logger.RootLogger
+var log = logger.NewLogger("Root")
 
 func main() {
-	log.Info("spawn actors")
+	log.Info("main start, spawn actors")
 
+	system := actor.NewActorSystem()
 	context := system.Root
 	props := actor.PropsFromProducer(func() actor.Actor { return &spiderctrl.SpiderController{} })
-	context.Spawn(props)
+	if _, err := context.SpawnNamed(props, "Root"); err != nil {
+		panic(err)
+	}
 
 	log.Info("spawn succ")
 	console.ReadLine()

@@ -22,12 +22,12 @@ proxyServer:
   host: localhost
 
 spiders:
-  - type: "comments"
+  "comments":
     prefix: "comments-spider-"
     spec: 2
-  - type: "articles"
+  "articles":
     prefix: "articles-spider-"
-    spec: 1
+    spec: 2
 
 articlesRequestUrl: "https://www.acfun.cn/rest/pc-direct/article/feed"
 

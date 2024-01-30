@@ -5,14 +5,20 @@ import (
 	"github.com/asynkron/protoactor-go/actor"
 )
 
-var log = logger.SpiderControllerLogger
+const actorName = "SpiderCtrl"
+
+var log = logger.NewLogger(actorName)
 
 type SpiderController struct {
+	pid      *actor.PID
+	children []*actor.PID
 }
 
-func (s *SpiderController) Receive(context actor.Context) {
-	switch msg := context.Message().(type) {
+func (s *SpiderController) Receive(ctx actor.Context) {
+	switch msg := ctx.Message().(type) {
+	case *actor.Started:
+		s.init(ctx)
 	default:
-		log.Infof("SpiderController recv msg: %T\n", msg)
+		log.Infof("%v recv msg: %T\n", ctx.Self().Id, msg)
 	}
 }
