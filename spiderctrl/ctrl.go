@@ -15,10 +15,13 @@ type SpiderController struct {
 }
 
 func (s *SpiderController) Receive(ctx actor.Context) {
-	switch msg := ctx.Message().(type) {
+	ctxMsg := ctx.Message()
+	log.Infof("%v recv msg: %T\n", ctx.Self().Id, ctxMsg)
+
+	switch ctxMsg.(type) {
 	case *actor.Started:
 		s.init(ctx)
 	default:
-		log.Infof("%v recv msg: %T\n", ctx.Self().Id, msg)
+		log.Infof("%v recv unknow msg: %T\n", ctx.Self().Id, ctxMsg)
 	}
 }

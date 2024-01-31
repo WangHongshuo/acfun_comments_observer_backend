@@ -27,11 +27,12 @@ type ServerConfig struct {
 }
 
 type DatabaseConfig struct {
-	Host      string `yaml:"host"`
-	Port      int    `yaml:"port"`
-	UserName  string `yaml:"username"`
-	Password  string `yaml:"password"`
-	TableName string `yaml:"tablename"`
+	Host         string `yaml:"host"`
+	Port         int    `yaml:"port"`
+	UserName     string `yaml:"username"`
+	Password     string `yaml:"password"`
+	DbName       string `yaml:"dbname"`
+	ReservedConn int    `yaml:"reservedConn"`
 }
 
 type ProxyServerConfig struct {

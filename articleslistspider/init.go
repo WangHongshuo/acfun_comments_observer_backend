@@ -5,18 +5,19 @@ import (
 
 	"github.com/WangHongshuo/acfuncommentsspider-go/cfg"
 	"github.com/WangHongshuo/acfuncommentsspider-go/commentsspider"
+	"github.com/WangHongshuo/acfuncommentsspider-go/dao"
 	"github.com/WangHongshuo/acfuncommentsspider-go/internal/util"
+	"github.com/WangHongshuo/acfuncommentsspider-go/msg"
 	"github.com/asynkron/protoactor-go/actor"
 )
 
 func (a *ArticlesListExecutor) init(ctx actor.Context) error {
-	log.Infof("SpiderController init")
+	log.Infof("ArticlesListExecutor init")
 	a.pid = ctx.Self()
 	a.instId, _ = util.GetInstIdFromPid(a.pid)
 
 	a.spawnCommentsExecutors(ctx)
 
-	log.Infof("%+v", a)
 	return nil
 }
 
@@ -40,4 +41,12 @@ func (a *ArticlesListExecutor) spawnCommentsExecutors(ctx actor.Context) error {
 	}
 
 	return nil
+}
+
+func (a *ArticlesListExecutor) initResource(ctx actor.Context) {
+	a.db = dao.GlobalPgDb
+
+	for _, pid := range a.children {
+		ctx.Send(pid, &msg.ResourceReadyMsg{})
+	}
 }

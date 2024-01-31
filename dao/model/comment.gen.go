@@ -12,6 +12,7 @@ type Comment struct {
 	Aid         int64  `gorm:"column:aid;not null;comment:Article ID" json:"aid"`                     // Article ID
 	FloorNumber int32  `gorm:"column:floor_number;not null;comment:Floor Number" json:"floor_number"` // Floor Number
 	Comment     string `gorm:"column:comment;not null;comment:Comment" json:"comment"`                // Comment
+	IsDel       bool   `gorm:"column:is_del;not null;comment:Is Delete" json:"is_del"`                // Is Delete
 }
 
 // TableName Comment's table name
