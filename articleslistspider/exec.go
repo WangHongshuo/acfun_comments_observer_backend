@@ -11,14 +11,15 @@ var log = logger.NewLogger(actorName)
 
 type ArticlesListExecutor struct {
 	pid      *actor.PID
+	instId   int
 	children []*actor.PID
 }
 
 func (a *ArticlesListExecutor) Receive(ctx actor.Context) {
-	switch msg := ctx.Message().(type) {
+	switch ctxMsg := ctx.Message().(type) {
 	case *actor.Started:
 		a.init(ctx)
 	default:
-		log.Infof("%v recv msg: %T\n", ctx.Self().Id, msg)
+		log.Infof("%v recv msg: %T\n", ctx.Self().Id, ctxMsg)
 	}
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/WangHongshuo/acfuncommentsspider-go/articleslistspider"
 	"github.com/WangHongshuo/acfuncommentsspider-go/cfg"
+	"github.com/WangHongshuo/acfuncommentsspider-go/internal/util"
 	"github.com/asynkron/protoactor-go/actor"
 )
 
@@ -22,9 +23,9 @@ func (s *SpiderController) spawnArticlesListExecutors(ctx actor.Context) error {
 
 	props := actor.PropsFromProducer(func() actor.Actor { return &articleslistspider.ArticlesListExecutor{} })
 	config := cfg.GlobalConfig.Spiders["articles"]
-	prefix := config.Prefix + "%v"
+	prefix := config.Prefix + util.ActorNameSuffixFmt
 
-	for i := 0; i < config.Spec; i++ {
+	for i := 1; i <= config.Spec; i++ {
 		name := fmt.Sprintf(prefix, i)
 		pid, err := ctx.SpawnNamed(props, name)
 		if err != nil {

@@ -23,10 +23,10 @@ proxyServer:
 
 spiders:
   "comments":
-    prefix: "comments-spider-"
+    prefix: "comments-spider"
     spec: 2
   "articles":
-    prefix: "articles-spider-"
+    prefix: "articles-spider"
     spec: 2
 
 articlesRequestUrl: "https://www.acfun.cn/rest/pc-direct/article/feed"
