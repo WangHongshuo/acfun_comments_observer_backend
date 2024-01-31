@@ -5,7 +5,6 @@ import (
 
 	"github.com/WangHongshuo/acfuncommentsspider-go/cfg"
 	"github.com/WangHongshuo/acfuncommentsspider-go/commentsspider"
-	"github.com/WangHongshuo/acfuncommentsspider-go/dao"
 	"github.com/WangHongshuo/acfuncommentsspider-go/internal/util"
 	"github.com/WangHongshuo/acfuncommentsspider-go/msg"
 	"github.com/asynkron/protoactor-go/actor"
@@ -44,8 +43,6 @@ func (a *ArticlesListExecutor) spawnCommentsExecutors(ctx actor.Context) error {
 }
 
 func (a *ArticlesListExecutor) initResource(ctx actor.Context) {
-	a.db = dao.GlobalPgDb
-
 	for _, pid := range a.children {
 		ctx.Send(pid, &msg.ResourceReadyMsg{})
 	}

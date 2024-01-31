@@ -4,7 +4,6 @@ import (
 	"github.com/WangHongshuo/acfuncommentsspider-go/internal/logger"
 	"github.com/WangHongshuo/acfuncommentsspider-go/msg"
 	"github.com/asynkron/protoactor-go/actor"
-	"gorm.io/gorm"
 )
 
 const actorName = "ArticlesListExec"
@@ -15,7 +14,6 @@ type ArticlesListExecutor struct {
 	pid      *actor.PID
 	instId   int
 	children []*actor.PID
-	db       *gorm.DB
 }
 
 func (a *ArticlesListExecutor) Receive(ctx actor.Context) {

@@ -1,7 +1,5 @@
 package cfg
 
-var GlobalConfig *Config
-
 type Config struct {
 	Server             ServerConfig            `yaml:"server"`
 	Database           DatabaseConfig          `yaml:"database"`
@@ -48,4 +46,5 @@ type SpiderConfig struct {
 type ArticleUrlConfig struct {
 	Referer string   `yaml:"referer"`
 	RealmId []string `yaml:"realmId"`
+	Spec    int      `yaml:"spec"`
 }

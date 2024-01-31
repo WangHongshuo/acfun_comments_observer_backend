@@ -25,12 +25,8 @@ func GetInstIdFromPid(pid *actor.PID) (int, error) {
 // example: parentSpec: 2, childrenSpec: 5
 // parent_1: [1, 2, 3], parent_2: [4, 5]
 func CalculateChildrenIdRangeFromInstSpec(parentSpec, childrenSpec, parentInstId int) (int, int) {
-	if parentSpec <= 0 || childrenSpec <= 0 || parentInstId < 1 || parentInstId > parentSpec {
-		return 0, 0
-	}
-
-	if childrenSpec < parentSpec {
-		childrenSpec = parentSpec
+	if parentSpec <= 0 || childrenSpec <= 0 || parentInstId < 1 || parentInstId > parentSpec || childrenSpec < parentInstId {
+		return -1, 1
 	}
 
 	spec := childrenSpec / parentSpec
