@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/WangHongshuo/acfuncommentsspider-go/cfg"
+	_ "github.com/WangHongshuo/acfuncommentsspider-go/cfg"
 	"github.com/WangHongshuo/acfuncommentsspider-go/internal/logger"
 	"github.com/WangHongshuo/acfuncommentsspider-go/proxypool"
 	"github.com/WangHongshuo/acfuncommentsspider-go/spiderctrl"
@@ -14,9 +14,7 @@ var log = logger.NewLogger("Root")
 func main() {
 	log.Info("main start, spawn actors")
 
-	cfg.Init()
 	proxypool.Init()
-
 	system := actor.NewActorSystem()
 	context := system.Root
 	props := actor.PropsFromProducer(func() actor.Actor { return &spiderctrl.SpiderController{} })

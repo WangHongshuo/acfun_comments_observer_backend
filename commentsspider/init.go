@@ -3,6 +3,7 @@ package commentsspider
 import (
 	"github.com/WangHongshuo/acfuncommentsspider-go/dao"
 	"github.com/WangHongshuo/acfuncommentsspider-go/internal/util"
+	"github.com/WangHongshuo/acfuncommentsspider-go/msg"
 	"github.com/asynkron/protoactor-go/actor"
 )
 
@@ -17,4 +18,6 @@ func (c *CommentsExecutor) init(ctx actor.Context) error {
 
 func (c *CommentsExecutor) initResource(ctx actor.Context) {
 	c.db = dao.GlobalPgDb
+
+	ctx.RequestWithCustomSender(ctx.Sender(), &msg.CommentsExecReadyMsg{}, c.pid)
 }

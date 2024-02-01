@@ -1,7 +1,9 @@
 package getter
 
 import (
+	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -43,7 +45,7 @@ func getUrlPayload(realmIds []string) url.Values {
 	return v
 }
 
-func articlesListGetter(porxyAddr string, articleUrl cfg.ArticleUrlConfig) ([]byte, error) {
+func ArticlesListGetter(porxyAddr string, articleUrl cfg.ArticleUrlConfig) ([]Article, error) {
 	client, err := util.NewHttpClient(porxyAddr)
 	if err != nil {
 		return nil, err
@@ -57,6 +59,9 @@ func articlesListGetter(porxyAddr string, articleUrl cfg.ArticleUrlConfig) ([]by
 	addArticlesListPageHeader(req, articleUrl.Referer)
 
 	resp, err := client.Do(req)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +72,7 @@ func articlesListGetter(porxyAddr string, articleUrl cfg.ArticleUrlConfig) ([]by
 		return nil, fmt.Errorf("http status code: %v", resp.StatusCode)
 	}
 
-	// gzip解压
+	// gzip unzip
 	gr, err := gzip.NewReader(resp.Body)
 	if err != nil {
 		if gr != nil {
@@ -76,9 +81,20 @@ func articlesListGetter(porxyAddr string, articleUrl cfg.ArticleUrlConfig) ([]by
 		return nil, err
 	}
 	defer gr.Close()
-	json, err := io.ReadAll(gr)
+
+	jsonData, err := io.ReadAll(gr)
 	if err != nil {
 		return nil, err
 	}
-	return json, nil
+
+	buff := bytes.NewBuffer(jsonData)
+	articlesList := &ArticlesList{}
+
+	decoder := json.NewDecoder(buff)
+	err = decoder.Decode(articlesList)
+	if err != nil {
+		return nil, err
+	}
+
+	return articlesList.Articles, nil
 }

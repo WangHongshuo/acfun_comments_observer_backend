@@ -11,7 +11,7 @@ import (
 
 var GlobalConfig *Config
 
-func Init() {
+func init() {
 	_, filename, _, _ := runtime.Caller(0)
 	dir := filepath.Dir(filename)
 	if err := loadConfigByPath(dir + "\\config.yaml"); err != nil {

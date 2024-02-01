@@ -32,6 +32,7 @@ func newComment(db *gorm.DB, opts ...gen.DOOption) comment {
 	_comment.FloorNumber = field.NewInt32(tableName, "floor_number")
 	_comment.Comment = field.NewString(tableName, "comment")
 	_comment.IsDel = field.NewBool(tableName, "is_del")
+	_comment.HarmInfoReportCnt = field.NewInt64(tableName, "harm_info_report_cnt")
 
 	_comment.fillFieldMap()
 
@@ -41,12 +42,13 @@ func newComment(db *gorm.DB, opts ...gen.DOOption) comment {
 type comment struct {
 	commentDo commentDo
 
-	ALL         field.Asterisk
-	Cid         field.Int64  // Comment ID
-	Aid         field.Int64  // Article ID
-	FloorNumber field.Int32  // Floor Number
-	Comment     field.String // Comment
-	IsDel       field.Bool   // Is Delete
+	ALL               field.Asterisk
+	Cid               field.Int64  // Comment ID
+	Aid               field.Int64  // Article ID
+	FloorNumber       field.Int32  // Floor Number
+	Comment           field.String // Comment
+	IsDel             field.Bool   // Is Delete
+	HarmInfoReportCnt field.Int64  // The number of reports of harmful information
 
 	fieldMap map[string]field.Expr
 }
@@ -68,6 +70,7 @@ func (c *comment) updateTableName(table string) *comment {
 	c.FloorNumber = field.NewInt32(table, "floor_number")
 	c.Comment = field.NewString(table, "comment")
 	c.IsDel = field.NewBool(table, "is_del")
+	c.HarmInfoReportCnt = field.NewInt64(table, "harm_info_report_cnt")
 
 	c.fillFieldMap()
 
@@ -92,12 +95,13 @@ func (c *comment) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *comment) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 5)
+	c.fieldMap = make(map[string]field.Expr, 6)
 	c.fieldMap["cid"] = c.Cid
 	c.fieldMap["aid"] = c.Aid
 	c.fieldMap["floor_number"] = c.FloorNumber
 	c.fieldMap["comment"] = c.Comment
 	c.fieldMap["is_del"] = c.IsDel
+	c.fieldMap["harm_info_report_cnt"] = c.HarmInfoReportCnt
 }
 
 func (c comment) clone(db *gorm.DB) comment {

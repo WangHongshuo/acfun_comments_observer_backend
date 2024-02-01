@@ -18,14 +18,15 @@ type CommentsExecutor struct {
 }
 
 func (c *CommentsExecutor) Receive(ctx actor.Context) {
-	ctxMsg := ctx.Message()
-	log.Infof("%v recv msg: %T\n", ctx.Self().Id, ctxMsg)
+	log.Infof("%v recv msg: %T\n", ctx.Self().Id, ctx.Message())
 
-	switch ctxMsg.(type) {
+	switch ctxMsg := ctx.Message().(type) {
 	case *actor.Started:
 		c.init(ctx)
 	case *msg.ResourceReadyMsg:
 		c.initResource(ctx)
+	case *msg.CommentsTaskMsg:
+		log.Infof("%v recv: %v\n", ctx.Self().Id, ctxMsg)
 	default:
 		log.Infof("%v recv unknow msg: %T\n", ctx.Self().Id, ctxMsg)
 	}

@@ -48,3 +48,16 @@ type ArticleUrlConfig struct {
 	RealmId []string `yaml:"realmId"`
 	Spec    int      `yaml:"spec"`
 }
+
+func (a *ArticleUrlConfig) Clone() ArticleUrlConfig {
+	realmId := make([]string, len(a.RealmId))
+	copy(realmId, a.RealmId)
+
+	ret := ArticleUrlConfig{
+		Referer: a.Referer,
+		RealmId: realmId,
+		Spec:    a.Spec,
+	}
+
+	return ret
+}

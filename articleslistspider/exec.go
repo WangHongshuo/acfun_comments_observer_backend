@@ -1,8 +1,10 @@
 package articleslistspider
 
 import (
+	"github.com/WangHongshuo/acfuncommentsspider-go/articleslistspider/getter"
 	"github.com/WangHongshuo/acfuncommentsspider-go/internal/logger"
 	"github.com/WangHongshuo/acfuncommentsspider-go/msg"
+	"github.com/WangHongshuo/acfuncommentsspider-go/proxypool"
 	"github.com/asynkron/protoactor-go/actor"
 )
 
@@ -12,20 +14,59 @@ var log = logger.NewLogger(actorName)
 
 type ArticlesListExecutor struct {
 	pid      *actor.PID
+	parent   *actor.PID
 	instId   int
 	children []*actor.PID
+
+	notReadyMap map[string]struct{}
 }
 
 func (a *ArticlesListExecutor) Receive(ctx actor.Context) {
-	ctxMsg := ctx.Message()
-	log.Infof("%v recv msg: %T\n", ctx.Self().Id, ctxMsg)
+	log.Infof("%v recv msg: %T\n", ctx.Self().Id, ctx.Message())
 
-	switch ctxMsg.(type) {
+	switch ctxMsg := ctx.Message().(type) {
 	case *actor.Started:
 		a.init(ctx)
 	case *msg.ResourceReadyMsg:
 		a.initResource(ctx)
+	case *msg.ArticlesListTaskMsg:
+		a.procArticlesListTaskMsg(ctxMsg, ctx)
+	case *msg.CommentsExecReadyMsg:
+		a.procCommentsExecReadyMsg(ctx)
 	default:
 		log.Infof("%v recv unknow msg: %T\n", ctx.Self().Id, ctxMsg)
+	}
+}
+
+func (a *ArticlesListExecutor) procCommentsExecReadyMsg(ctx actor.Context) {
+	delete(a.notReadyMap, ctx.Sender().Id)
+	if len(a.notReadyMap) == 0 {
+		log.Errorf("%v all comments exec ready\n", ctx.Self().Id)
+		ctx.RequestWithCustomSender(a.parent, &msg.ArticlesListExecReadyMsg{}, a.pid)
+	}
+}
+
+func (a *ArticlesListExecutor) procArticlesListTaskMsg(ctxMsg *msg.ArticlesListTaskMsg, ctx actor.Context) {
+	if ctxMsg == nil {
+		log.Errorf("%v recv empty msg: %T\n", ctx.Self().Id, ctxMsg)
+		return
+	}
+
+	proxyAddr, err := proxypool.GlobalProxyPool.GetHttpsProxy()
+	if err != nil {
+		log.Errorf("%v get proxy error: %v\n", ctx.Self().Id, err)
+		return
+	}
+
+	articlesList, err := getter.ArticlesListGetter(proxyAddr, ctxMsg.Target)
+	if err != nil {
+		log.Errorf("%v get articles list error: %v\n", ctx.Self().Id, err)
+		return
+	}
+
+	selfCommentsExecutorNum := len(a.children)
+	i := 0
+	for _, article := range articlesList {
+		ctx.RequestWithCustomSender(a.children[i%selfCommentsExecutorNum], &msg.CommentsTaskMsg{Aid: article.ArticleID}, a.pid)
 	}
 }

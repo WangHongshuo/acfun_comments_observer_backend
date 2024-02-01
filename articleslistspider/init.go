@@ -13,6 +13,7 @@ import (
 func (a *ArticlesListExecutor) init(ctx actor.Context) error {
 	log.Infof("ArticlesListExecutor init")
 	a.pid = ctx.Self()
+	a.parent = ctx.Parent()
 	a.instId, _ = util.GetInstIdFromPid(a.pid)
 
 	a.spawnCommentsExecutors(ctx)
@@ -26,6 +27,7 @@ func (a *ArticlesListExecutor) spawnCommentsExecutors(ctx actor.Context) error {
 	commentsExecSpec := commentsConfig.Spec
 	articlesListExecSpec := cfg.GlobalConfig.Spiders["articles"].Spec
 	prefix := commentsConfig.Prefix + util.ActorNameSuffixFmt
+	a.notReadyMap = make(map[string]struct{}, 0)
 
 	start, end := util.CalculateChildrenIdRangeFromInstSpec(articlesListExecSpec, commentsExecSpec, a.instId)
 
@@ -37,6 +39,7 @@ func (a *ArticlesListExecutor) spawnCommentsExecutors(ctx actor.Context) error {
 			continue
 		}
 		a.children = append(a.children, pid)
+		a.notReadyMap[pid.Id] = struct{}{}
 	}
 
 	return nil
@@ -44,6 +47,6 @@ func (a *ArticlesListExecutor) spawnCommentsExecutors(ctx actor.Context) error {
 
 func (a *ArticlesListExecutor) initResource(ctx actor.Context) {
 	for _, pid := range a.children {
-		ctx.Send(pid, &msg.ResourceReadyMsg{})
+		ctx.RequestWithCustomSender(pid, &msg.ResourceReadyMsg{}, a.pid)
 	}
 }

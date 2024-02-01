@@ -65,7 +65,7 @@ func (s *SpiderController) initGlobalPgDb(ctx actor.Context) error {
 	dao.GlobalPgDb = db
 
 	for _, pid := range s.children {
-		ctx.Send(pid, &msg.ResourceReadyMsg{})
+		ctx.RequestWithCustomSender(pid, &msg.ResourceReadyMsg{}, s.pid)
 	}
 
 	return nil

@@ -1,7 +1,6 @@
 package getter
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -29,21 +28,13 @@ func Test_UnmarshalJsonBody(t *testing.T) {
 }
 
 func Test_ArticlesGetter(t *testing.T) {
-	ret, err := articlesListGetter("http://159.138.57.97:4003", cfg.GlobalConfig.ArticleUrl[0])
+
+	ret, err := ArticlesListGetter("http://159.138.57.97:4003", cfg.GlobalConfig.ArticleUrl[0])
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	buff := bytes.NewBuffer(ret)
-	articlesList := &ArticlesList{}
-
-	decoder := json.NewDecoder(buff)
-	err = decoder.Decode(articlesList)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	t.Logf("\n%+v", articlesList)
-	assert.Equal(t, true, len(articlesList.Articles) > 0)
+	t.Logf("\n%+v", ret)
+	assert.Equal(t, true, len(ret) > 0)
 }

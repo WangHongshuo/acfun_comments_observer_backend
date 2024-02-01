@@ -58,5 +58,5 @@ func (p *proxyPool) GetHttpsProxy() (string, error) {
 		return ret.Proxy, fmt.Errorf("no proxy resource")
 	}
 
-	return ret.Proxy, nil
+	return fmt.Sprintf("http://%v", ret.Proxy), nil
 }

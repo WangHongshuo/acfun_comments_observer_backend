@@ -8,11 +8,12 @@ const TableNameComment = "comment"
 
 // Comment mapped from table <comment>
 type Comment struct {
-	Cid         int64  `gorm:"column:cid;primaryKey;comment:Comment ID" json:"cid"`                   // Comment ID
-	Aid         int64  `gorm:"column:aid;not null;comment:Article ID" json:"aid"`                     // Article ID
-	FloorNumber int32  `gorm:"column:floor_number;not null;comment:Floor Number" json:"floor_number"` // Floor Number
-	Comment     string `gorm:"column:comment;not null;comment:Comment" json:"comment"`                // Comment
-	IsDel       bool   `gorm:"column:is_del;not null;comment:Is Delete" json:"is_del"`                // Is Delete
+	Cid               int64  `gorm:"column:cid;primaryKey;comment:Comment ID" json:"cid"`                                                                   // Comment ID
+	Aid               int64  `gorm:"column:aid;not null;comment:Article ID" json:"aid"`                                                                     // Article ID
+	FloorNumber       int32  `gorm:"column:floor_number;not null;comment:Floor Number" json:"floor_number"`                                                 // Floor Number
+	Comment           string `gorm:"column:comment;not null;comment:Comment" json:"comment"`                                                                // Comment
+	IsDel             bool   `gorm:"column:is_del;not null;comment:Is Delete" json:"is_del"`                                                                // Is Delete
+	HarmInfoReportCnt int64  `gorm:"column:harm_info_report_cnt;not null;comment:The number of reports of harmful information" json:"harm_info_report_cnt"` // The number of reports of harmful information
 }
 
 // TableName Comment's table name
