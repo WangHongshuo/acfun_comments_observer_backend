@@ -1,10 +1,9 @@
 package main
 
 import (
-	// 必须先初始化cfg
-	_ "github.com/WangHongshuo/acfuncommentsspider-go/cfg"
-	// logger依赖cfg
+	"github.com/WangHongshuo/acfuncommentsspider-go/cfg"
 	"github.com/WangHongshuo/acfuncommentsspider-go/internal/logger"
+	"github.com/WangHongshuo/acfuncommentsspider-go/proxypool"
 	"github.com/WangHongshuo/acfuncommentsspider-go/spiderctrl"
 	console "github.com/asynkron/goconsole"
 	"github.com/asynkron/protoactor-go/actor"
@@ -14,6 +13,9 @@ var log = logger.NewLogger("Root")
 
 func main() {
 	log.Info("main start, spawn actors")
+
+	cfg.Init()
+	proxypool.Init()
 
 	system := actor.NewActorSystem()
 	context := system.Root

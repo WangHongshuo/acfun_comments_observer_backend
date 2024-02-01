@@ -14,13 +14,13 @@ logger:
   level: "debug"
   onSave: false
   path: "./logs/runlog.log"
-  maxSize: 10 # 单个日志最大体积MB
-  maxBackups: 10 # 最大日志文件数量
-  maxAge: 7 # 保留天数
+  maxSize: 10 # single log file size 10Mb
+  maxBackups: 10 # max number of log files
+  maxAge: 7 # day
 
 proxyServer:
   port: 5010
-  host: localhost
+  host: "192.168.214.129"
 
 spiders:
   "comments":
