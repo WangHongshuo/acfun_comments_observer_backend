@@ -60,13 +60,19 @@ func (a *ArticlesListExecutor) procArticlesListTaskMsg(ctxMsg *msg.ArticlesListT
 
 	articlesList, err := getter.ArticlesListGetter(proxyAddr, ctxMsg.Target)
 	if err != nil {
-		log.Errorf("%v get articles list error: %v\n", ctx.Self().Id, err)
+		log.Errorf("%v get articles list by %v error: %v\n", ctx.Self().Id, proxyAddr, err)
 		return
 	}
 
 	selfCommentsExecutorNum := len(a.children)
+	aidList := make([][]int64, selfCommentsExecutorNum)
+
 	i := 0
 	for _, article := range articlesList {
-		ctx.RequestWithCustomSender(a.children[i%selfCommentsExecutorNum], &msg.CommentsTaskMsg{Aid: article.ArticleID}, a.pid)
+		aidList[i%selfCommentsExecutorNum] = append(aidList[i%selfCommentsExecutorNum], article.ArticleID)
+		i++
+	}
+	for i, pid := range a.children {
+		ctx.RequestWithCustomSender(pid, &msg.CommentsTaskMsg{Aids: aidList[i]}, a.pid)
 	}
 }

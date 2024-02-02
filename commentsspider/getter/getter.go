@@ -1,7 +1,9 @@
 package getter
 
 import (
+	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -28,32 +30,35 @@ func addCommentsPageHeader(req *http.Request) {
 	}
 }
 
-func commentsGetter(porxyAddr, aid string) ([]byte, error) {
+func CommentsGetter(porxyAddr string, aid int64, page int) ([]Comment, int64, error) {
 	url := fmt.Sprintf("https://www.acfun.cn/rest/pc-direct/comment/listByFloor?sourceId=%v&sourceType=3&page=%v&pivotCommentId=0&newPivotCommentId=0&t=%v&supportZtEmot=true",
-		aid, 1, time.Now().UnixMilli())
+		aid, page, time.Now().UnixMilli())
 
 	client, err := util.NewHttpClient(porxyAddr)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	addCommentsPageHeader(req)
 	req.Header.Set("Referer", fmt.Sprintf("https://www.acfun.cn/a/ac%v", aid))
 	resp, err := client.Do(req)
 
+	if resp != nil {
+		defer resp.Body.Close()
+	}
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	if resp == nil {
-		return nil, fmt.Errorf("http resp is nil")
+		return nil, 0, fmt.Errorf("http resp is nil")
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("http status code: %v", resp.StatusCode)
+		return nil, 0, fmt.Errorf("http status code: %v", resp.StatusCode)
 	}
 
 	// gzip解压
@@ -63,13 +68,28 @@ func commentsGetter(porxyAddr, aid string) ([]byte, error) {
 		if gr != nil {
 			gr.Close()
 		}
-		return nil, err
+		return nil, 0, err
 	}
 
 	defer gr.Close()
-	json, err := io.ReadAll(gr)
+	jsonData, err := io.ReadAll(gr)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return json, nil
+
+	buff := bytes.NewBuffer(jsonData)
+	comments := &CommentsJsonResponse{}
+	decoder := json.NewDecoder(buff)
+	err = decoder.Decode(comments)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	ret := make([]Comment, 0, len(comments.CommentsMap))
+	for _, v := range comments.CommentIDS {
+		if v, ok := comments.CommentsMap[fmt.Sprintf("c%v", v)]; ok {
+			ret = append(ret, v)
+		}
+	}
+	return ret, comments.TotalPage, nil
 }

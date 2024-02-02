@@ -21,6 +21,7 @@ logger:
 proxyServer:
   port: 5010
   host: "192.168.214.129"
+  customProxy: "2" # highest priority, for test
 
 spiders:
   "comments":

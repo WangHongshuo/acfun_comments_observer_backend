@@ -7,5 +7,5 @@ type ArticlesListTaskMsg struct {
 }
 
 type CommentsTaskMsg struct {
-	Aid int64
+	Aids []int64
 }

@@ -34,8 +34,9 @@ type DatabaseConfig struct {
 }
 
 type ProxyServerConfig struct {
-	Port int    `yaml:"port"`
-	Host string `yaml:"host"`
+	Port        int    `yaml:"port"`
+	Host        string `yaml:"host"`
+	CustomProxy string `yaml:"customProxy"`
 }
 
 type SpiderConfig struct {

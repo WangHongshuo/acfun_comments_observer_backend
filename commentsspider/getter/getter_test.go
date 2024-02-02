@@ -1,7 +1,6 @@
 package getter
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -28,21 +27,14 @@ func Test_UnmarshalJsonBody(t *testing.T) {
 }
 
 func Test_CommentsGetter(t *testing.T) {
-	ret, err := commentsGetter("http://159.138.57.97:4003", "39658906")
+	ret, totalPage, err := CommentsGetter("http://159.138.57.97:4003", 39658906, 2)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	buff := bytes.NewBuffer(ret)
-	comments := &CommentsJsonResponse{}
-	decoder := json.NewDecoder(buff)
-	err = decoder.Decode(comments)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	t.Logf("\n%v", comments)
-
-	assert.Equal(t, true, len(comments.CommentsMap) > 0)
+	t.Logf("\nTotalPage: %v", totalPage)
+	t.Logf("\n%v", ret)
+	assert.Equal(t, true, len(ret) > 0)
+	assert.Equal(t, true, totalPage > 0)
 }

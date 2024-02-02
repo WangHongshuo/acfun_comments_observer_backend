@@ -29,6 +29,7 @@ func newArticle(db *gorm.DB, opts ...gen.DOOption) article {
 	_article.ALL = field.NewAsterisk(tableName)
 	_article.Aid = field.NewInt64(tableName, "aid")
 	_article.LastFloorNumber = field.NewInt32(tableName, "last_floor_number")
+	_article.IsCompleted = field.NewBool(tableName, "is_completed")
 
 	_article.fillFieldMap()
 
@@ -41,6 +42,7 @@ type article struct {
 	ALL             field.Asterisk
 	Aid             field.Int64 // Article ID
 	LastFloorNumber field.Int32 // Last Comment Floor Number
+	IsCompleted     field.Bool  // Is get all comments
 
 	fieldMap map[string]field.Expr
 }
@@ -59,6 +61,7 @@ func (a *article) updateTableName(table string) *article {
 	a.ALL = field.NewAsterisk(table)
 	a.Aid = field.NewInt64(table, "aid")
 	a.LastFloorNumber = field.NewInt32(table, "last_floor_number")
+	a.IsCompleted = field.NewBool(table, "is_completed")
 
 	a.fillFieldMap()
 
@@ -83,9 +86,10 @@ func (a *article) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *article) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 2)
+	a.fieldMap = make(map[string]field.Expr, 3)
 	a.fieldMap["aid"] = a.Aid
 	a.fieldMap["last_floor_number"] = a.LastFloorNumber
+	a.fieldMap["is_completed"] = a.IsCompleted
 }
 
 func (a article) clone(db *gorm.DB) article {

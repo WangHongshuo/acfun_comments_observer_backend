@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/WangHongshuo/acfuncommentsspider-go/cfg"
 )
 
 var GlobalProxyPool *proxyPool
@@ -20,6 +22,9 @@ type proxyPoolResult struct {
 }
 
 func (p *proxyPool) GetHttpsProxy() (string, error) {
+	if cfg.GlobalConfig.ProxyServer.CustomProxy != "" {
+		return fmt.Sprintf("http://%v", cfg.GlobalConfig.ProxyServer.CustomProxy), nil
+	}
 	if p == nil {
 		return "", fmt.Errorf("*proxyPool is nil")
 	}
