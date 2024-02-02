@@ -2,6 +2,6 @@ package msg
 
 type ResourceReadyMsg struct{}
 
-type ArticlesListExecReadyMsg struct{}
+type ArticlesListObReadyMsg struct{}
 
-type CommentsExecReadyMsg struct{}
+type CommentsObReadyMsg struct{}

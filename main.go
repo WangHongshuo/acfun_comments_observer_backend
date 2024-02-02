@@ -1,10 +1,10 @@
 package main
 
 import (
-	_ "github.com/WangHongshuo/acfuncommentsspider-go/cfg"
-	"github.com/WangHongshuo/acfuncommentsspider-go/internal/logger"
-	"github.com/WangHongshuo/acfuncommentsspider-go/proxypool"
-	"github.com/WangHongshuo/acfuncommentsspider-go/spiderctrl"
+	_ "github.com/WangHongshuo/acfun_comments_observer_backend/cfg"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/internal/logger"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/obctrl"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/proxypool"
 	console "github.com/asynkron/goconsole"
 	"github.com/asynkron/protoactor-go/actor"
 )
@@ -17,7 +17,7 @@ func main() {
 	proxypool.Init()
 	system := actor.NewActorSystem()
 	context := system.Root
-	props := actor.PropsFromProducer(func() actor.Actor { return &spiderctrl.SpiderController{} })
+	props := actor.PropsFromProducer(func() actor.Actor { return &obctrl.ObController{} })
 	if _, err := context.SpawnNamed(props, "Root"); err != nil {
 		panic(err)
 	}

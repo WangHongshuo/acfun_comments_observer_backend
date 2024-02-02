@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	_ "github.com/WangHongshuo/acfuncommentsspider-go/cfg"
+	_ "github.com/WangHongshuo/acfun_comments_observer_backend/cfg"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"github.com/WangHongshuo/acfuncommentsspider-go/dao/model"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/dao/model"
 )
 
 func newComment(db *gorm.DB, opts ...gen.DOOption) comment {

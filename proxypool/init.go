@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/WangHongshuo/acfuncommentsspider-go/cfg"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/cfg"
 )
 
 func Init() {

@@ -1,13 +1,13 @@
 package cfg
 
 type Config struct {
-	Server             ServerConfig            `yaml:"server"`
-	Database           DatabaseConfig          `yaml:"database"`
-	ProxyServer        ProxyServerConfig       `yaml:"proxyServer"`
-	Spiders            map[string]SpiderConfig `yaml:"spiders"`
-	ArticlesRequestUrl string                  `yaml:"articlesRequestUrl"`
-	ArticleUrl         []ArticleUrlConfig      `yaml:"articleUrl"`
-	Logger             LoggerConfig            `yaml:"logger"`
+	Server             ServerConfig              `yaml:"server"`
+	Database           DatabaseConfig            `yaml:"database"`
+	ProxyServer        ProxyServerConfig         `yaml:"proxyServer"`
+	Observers          map[string]ObserverConfig `yaml:"observers"`
+	ArticlesRequestUrl string                    `yaml:"articlesRequestUrl"`
+	ArticleUrl         []ArticleUrlConfig        `yaml:"articleUrl"`
+	Logger             LoggerConfig              `yaml:"logger"`
 }
 
 type LoggerConfig struct {
@@ -39,7 +39,7 @@ type ProxyServerConfig struct {
 	CustomProxy string `yaml:"customProxy"`
 }
 
-type SpiderConfig struct {
+type ObserverConfig struct {
 	Prefix string `yaml:"prefix"`
 	Spec   int    `yaml:"spec"`
 }

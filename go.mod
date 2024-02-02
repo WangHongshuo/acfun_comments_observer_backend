@@ -1,4 +1,4 @@
-module github.com/WangHongshuo/acfuncommentsspider-go
+module github.com/WangHongshuo/acfun_comments_observer_backend
 
 go 1.21
 

@@ -20,16 +20,16 @@ func init() {
 	}
 
 	// correction
-	articlesListConfig := GlobalConfig.Spiders["articles"]
+	articlesListConfig := GlobalConfig.Observers["articles"]
 	if articlesListConfig.Spec > len(GlobalConfig.ArticleUrl) {
 		articlesListConfig.Spec = len(GlobalConfig.ArticleUrl)
-		GlobalConfig.Spiders["articles"] = articlesListConfig
+		GlobalConfig.Observers["articles"] = articlesListConfig
 	}
 
-	commentsConfig := GlobalConfig.Spiders["comments"]
+	commentsConfig := GlobalConfig.Observers["comments"]
 	if commentsConfig.Spec < articlesListConfig.Spec {
 		commentsConfig.Spec = articlesListConfig.Spec
-		GlobalConfig.Spiders["comments"] = commentsConfig
+		GlobalConfig.Observers["comments"] = commentsConfig
 	}
 
 	log.Printf("load config succ: \n%+v\n", GlobalConfig)

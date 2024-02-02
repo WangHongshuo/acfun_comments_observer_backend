@@ -21,14 +21,14 @@ logger:
 proxyServer:
   port: 5010
   host: "192.168.214.129"
-  customProxy: "2" # highest priority, for test
+  customProxy: "" # highest priority, for test
 
-spiders:
+observers:
   "comments":
-    prefix: "comments-spider"
+    prefix: "comments-ob"
     spec: 2
   "articles":
-    prefix: "articles-spider"
+    prefix: "articles-ob"
     spec: 2
 
 articlesRequestUrl: "https://www.acfun.cn/rest/pc-direct/article/feed"

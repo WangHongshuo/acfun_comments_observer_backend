@@ -10,8 +10,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/WangHongshuo/acfuncommentsspider-go/cfg"
-	"github.com/WangHongshuo/acfuncommentsspider-go/internal/util"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/cfg"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/internal/util"
 )
 
 var articlesListHeaderTemplate = map[string]string{

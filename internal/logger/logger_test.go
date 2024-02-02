@@ -4,7 +4,7 @@ import (
 	"sync"
 	"testing"
 
-	_ "github.com/WangHongshuo/acfuncommentsspider-go/cfg"
+	_ "github.com/WangHongshuo/acfun_comments_observer_backend/cfg"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

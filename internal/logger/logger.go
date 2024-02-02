@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/WangHongshuo/acfuncommentsspider-go/cfg"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/cfg"
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

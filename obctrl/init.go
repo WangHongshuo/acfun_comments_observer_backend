@@ -1,20 +1,20 @@
-package spiderctrl
+package obctrl
 
 import (
 	"fmt"
 
-	"github.com/WangHongshuo/acfuncommentsspider-go/articleslistspider"
-	"github.com/WangHongshuo/acfuncommentsspider-go/cfg"
-	"github.com/WangHongshuo/acfuncommentsspider-go/dao"
-	"github.com/WangHongshuo/acfuncommentsspider-go/internal/util"
-	"github.com/WangHongshuo/acfuncommentsspider-go/msg"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/articleslistsob"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/cfg"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/dao"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/internal/util"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/msg"
 	"github.com/asynkron/protoactor-go/actor"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func (s *SpiderController) init(ctx actor.Context) error {
-	log.Infof("SpiderController init")
+func (s *ObController) init(ctx actor.Context) error {
+	log.Infof("ObController init")
 	s.pid = ctx.Self()
 
 	s.spawnArticlesListExecutors(ctx)
@@ -23,10 +23,10 @@ func (s *SpiderController) init(ctx actor.Context) error {
 	return nil
 }
 
-func (s *SpiderController) spawnArticlesListExecutors(ctx actor.Context) error {
+func (s *ObController) spawnArticlesListExecutors(ctx actor.Context) error {
 
-	props := actor.PropsFromProducer(func() actor.Actor { return &articleslistspider.ArticlesListExecutor{} })
-	config := cfg.GlobalConfig.Spiders["articles"]
+	props := actor.PropsFromProducer(func() actor.Actor { return &articleslistsob.ArticlesListOb{} })
+	config := cfg.GlobalConfig.Observers["articles"]
 	prefix := config.Prefix + util.ActorNameSuffixFmt
 
 	for i := 1; i <= config.Spec; i++ {
@@ -42,9 +42,9 @@ func (s *SpiderController) spawnArticlesListExecutors(ctx actor.Context) error {
 	return nil
 }
 
-func (s *SpiderController) initGlobalPgDb(ctx actor.Context) error {
+func (s *ObController) initGlobalPgDb(ctx actor.Context) error {
 	dbConfig := cfg.GlobalConfig.Database
-	actorsSpec := cfg.GlobalConfig.Spiders["comments"].Spec + cfg.GlobalConfig.Spiders["articles"].Spec
+	actorsSpec := cfg.GlobalConfig.Observers["comments"].Spec + cfg.GlobalConfig.Observers["articles"].Spec
 
 	dsn := fmt.Sprintf("user=%v password=%v port=%v dbname=%v sslmode=disable TimeZone=Asia/Shanghai",
 		dbConfig.UserName, dbConfig.Password, dbConfig.Port, dbConfig.DbName)

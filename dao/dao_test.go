@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/WangHongshuo/acfuncommentsspider-go/dao/model"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/dao/model"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

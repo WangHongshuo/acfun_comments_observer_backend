@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/WangHongshuo/acfuncommentsspider-go/internal/util"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/internal/util"
 )
 
 var commentsHeaderTemplate = map[string]string{

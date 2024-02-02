@@ -1,35 +1,35 @@
-package spiderctrl
+package obctrl
 
 import (
-	"github.com/WangHongshuo/acfuncommentsspider-go/cfg"
-	"github.com/WangHongshuo/acfuncommentsspider-go/internal/logger"
-	"github.com/WangHongshuo/acfuncommentsspider-go/msg"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/cfg"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/internal/logger"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/msg"
 	"github.com/asynkron/protoactor-go/actor"
 )
 
-const actorName = "SpiderCtrl"
+const actorName = "ObCtrl"
 
 var log = logger.NewLogger(actorName)
 
-type SpiderController struct {
+type ObController struct {
 	pid      *actor.PID
 	children []*actor.PID
 }
 
-func (s *SpiderController) Receive(ctx actor.Context) {
+func (s *ObController) Receive(ctx actor.Context) {
 	log.Infof("%v recv msg: %T\n", ctx.Self().Id, ctx.Message())
 
 	switch ctxMsg := ctx.Message().(type) {
 	case *actor.Started:
 		s.init(ctx)
-	case *msg.ArticlesListExecReadyMsg:
-		s.procArticlesListExecReadyMsg(ctx)
+	case *msg.ArticlesListObReadyMsg:
+		s.procArticlesListObReadyMsg(ctx)
 	default:
 		log.Infof("%v recv unknow msg: %T\n", ctx.Self().Id, ctxMsg)
 	}
 }
 
-func (s *SpiderController) procArticlesListExecReadyMsg(ctx actor.Context) {
+func (s *ObController) procArticlesListObReadyMsg(ctx actor.Context) {
 	config := cfg.GlobalConfig.ArticleUrl[0].Clone()
 	ctx.Send(ctx.Sender(), &msg.ArticlesListTaskMsg{Target: config})
 }

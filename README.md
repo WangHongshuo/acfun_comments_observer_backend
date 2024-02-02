@@ -1,9 +1,10 @@
-# AcfunCommentsSpider-go
+# AcFun Comments Observer Backend
+A站评论观察者
 
 Root
-├── SpiderHttpServer(ToDo)
-├── SpiderController
-    ├── ArticlesListExecutor
-        ├── CommentsExecutor
+├── HttpServer(ToDo)
+├── ObserverController
+    ├── ArticlesListObserver
+        ├── CommentsObserver
 
 

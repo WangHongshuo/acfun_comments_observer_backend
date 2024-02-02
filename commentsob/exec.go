@@ -1,17 +1,17 @@
-package commentsspider
+package commentsob
 
 import (
-	"github.com/WangHongshuo/acfuncommentsspider-go/internal/logger"
-	"github.com/WangHongshuo/acfuncommentsspider-go/msg"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/internal/logger"
+	"github.com/WangHongshuo/acfun_comments_observer_backend/msg"
 	"github.com/asynkron/protoactor-go/actor"
 	"gorm.io/gorm"
 )
 
-const actorName = "CommentsExec"
+const actorName = "CommentsOb"
 
 var log = logger.NewLogger(actorName)
 
-type CommentsExecutor struct {
+type CommentsOb struct {
 	pid    *actor.PID
 	instId int
 
@@ -19,7 +19,7 @@ type CommentsExecutor struct {
 	aidList []int64
 }
 
-func (c *CommentsExecutor) Receive(ctx actor.Context) {
+func (c *CommentsOb) Receive(ctx actor.Context) {
 	log.Infof("%v recv msg: %T\n", ctx.Self().Id, ctx.Message())
 
 	switch ctxMsg := ctx.Message().(type) {
@@ -34,7 +34,7 @@ func (c *CommentsExecutor) Receive(ctx actor.Context) {
 	}
 }
 
-func (c *CommentsExecutor) procCommentsTaskMsg(ctxMsg *msg.CommentsTaskMsg) {
+func (c *CommentsOb) procCommentsTaskMsg(ctxMsg *msg.CommentsTaskMsg) {
 	log.Infof("%v recv: %v\n", c.pid.Id, ctxMsg)
 	if ctxMsg == nil {
 		return

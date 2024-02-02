@@ -1,6 +1,6 @@
 package msg
 
-import "github.com/WangHongshuo/acfuncommentsspider-go/cfg"
+import "github.com/WangHongshuo/acfun_comments_observer_backend/cfg"
 
 type ArticlesListTaskMsg struct {
 	Target cfg.ArticleUrlConfig
