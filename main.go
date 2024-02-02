@@ -9,7 +9,7 @@ import (
 	"github.com/asynkron/protoactor-go/actor"
 )
 
-var log = logger.NewLogger("Root")
+var log = logger.NewLogger("Main")
 
 func main() {
 	log.Info("main start, spawn actors")
@@ -18,7 +18,7 @@ func main() {
 	system := actor.NewActorSystem()
 	context := system.Root
 	props := actor.PropsFromProducer(func() actor.Actor { return &obctrl.ObController{} })
-	if _, err := context.SpawnNamed(props, "Root"); err != nil {
+	if _, err := context.SpawnNamed(props, "ObCtrl"); err != nil {
 		panic(err)
 	}
 

@@ -24,11 +24,13 @@ proxyServer:
   customProxy: "" # highest priority, for test
 
 observers:
-  "comments":
-    prefix: "comments-ob"
+  "comments": # name is fixed
+    prefix: "cob"
     spec: 2
-  "articles":
-    prefix: "articles-ob"
+    minDelay: 3 # second
+    maxDelay: 5 # second
+  "articles": # name is fixed
+    prefix: "aob"
     spec: 2
 
 articlesRequestUrl: "https://www.acfun.cn/rest/pc-direct/article/feed"
