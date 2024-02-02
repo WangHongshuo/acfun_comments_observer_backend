@@ -40,10 +40,12 @@ type ProxyServerConfig struct {
 }
 
 type ObserverConfig struct {
-	Prefix   string `yaml:"prefix"`
-	Spec     int    `yaml:"spec"`
-	MinDelay int    `yaml:"minDelay"`
-	MaxDelay int    `yaml:"maxDelay"`
+	Prefix                  string `yaml:"prefix"`
+	Spec                    int    `yaml:"spec"`
+	PerArticleMinDelay      int    `yaml:"perArticleMinDelay"`
+	PerArticleMaxDelay      int    `yaml:"perArticleMaxDelay"`
+	PerCommentsPageMinDelay int    `yaml:"perCommentsPageMinDelay"`
+	PerCommentsPageMaxDelay int    `yaml:"perCommentsPageMaxDelay"`
 }
 
 type ArticleUrlConfig struct {

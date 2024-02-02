@@ -58,7 +58,14 @@ func Test_Article(t *testing.T) {
 		Aid:             1,
 		LastFloorNumber: 9,
 	}
+
+	article2 := &model.Article{
+		Aid:             2,
+		LastFloorNumber: 10,
+	}
+
 	db.Delete(article1)
+	db.Delete(article2)
 
 	var result []model.Article
 
@@ -66,11 +73,16 @@ func Test_Article(t *testing.T) {
 	assert.Equal(t, 0, len(result))
 
 	db.Create(article1)
+	db.Save([]model.Article{*article1, *article2})
 
-	db.Where("aid = ?", "1").Find(&result)
-	assert.Equal(t, article1, &result[0])
+	db.Where("aid = ?", "2").Find(&result)
+	assert.Equal(t, article2, &result[0])
 
 	db.Delete(article1)
 	db.Where("aid = ?", "1").Find(&result)
+	assert.Equal(t, 0, len(result))
+
+	db.Delete(article2)
+	db.Where("aid = ?", "12").Find(&result)
 	assert.Equal(t, 0, len(result))
 }

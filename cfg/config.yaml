@@ -26,12 +26,14 @@ proxyServer:
 observers:
   "comments": # name is fixed
     prefix: "cob"
-    spec: 2
-    minDelay: 3 # second
-    maxDelay: 5 # second
+    spec: 1
+    perArticleMinDelay: 3 # second
+    perArticleMaxDelay: 5 # second
+    perCommentsPageMinDelay: 2 # second
+    perCommentsPageMaxDelay: 4 # second
   "articles": # name is fixed
     prefix: "aob"
-    spec: 2
+    spec: 1
 
 articlesRequestUrl: "https://www.acfun.cn/rest/pc-direct/article/feed"
 

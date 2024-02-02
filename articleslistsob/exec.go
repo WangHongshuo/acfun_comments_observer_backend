@@ -13,11 +13,12 @@ const actorName = "ArticlesListOb"
 var log = logger.NewLogger(actorName)
 
 type ArticlesListOb struct {
-	pid      *actor.PID
-	parent   *actor.PID
-	instId   int
-	children []*actor.PID
+	pid    *actor.PID
+	parent *actor.PID
+	instId int
+	ctx    actor.Context
 
+	children    []*actor.PID
 	notReadyMap map[string]struct{}
 }
 

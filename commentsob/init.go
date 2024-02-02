@@ -6,6 +6,7 @@ import (
 	"github.com/WangHongshuo/acfun_comments_observer_backend/internal/util"
 	"github.com/WangHongshuo/acfun_comments_observer_backend/msg"
 	"github.com/asynkron/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/scheduler"
 )
 
 func (c *CommentsOb) init(ctx actor.Context) error {
@@ -13,6 +14,8 @@ func (c *CommentsOb) init(ctx actor.Context) error {
 
 	c.pid = ctx.Self()
 	c.instId, _ = util.GetInstIdFromPid(c.pid)
+	c.ctx = ctx
+	c.timer = scheduler.NewTimerScheduler(ctx)
 
 	return nil
 }
@@ -20,8 +23,10 @@ func (c *CommentsOb) init(ctx actor.Context) error {
 func (c *CommentsOb) initResource(ctx actor.Context) {
 	c.db = dao.GlobalPgDb
 	obConfig := cfg.GlobalConfig.Observers["comments"]
-	c.minDelay = obConfig.MinDelay
-	c.maxDelay = obConfig.MaxDelay
+	c.perArticleMinDelay = obConfig.PerArticleMinDelay
+	c.perArticleMaxDelay = obConfig.PerArticleMaxDelay
+	c.perCommentsPageMinDelay = obConfig.PerCommentsPageMinDelay
+	c.perCommentsPageMaxDelay = obConfig.PerCommentsPageMaxDelay
 
 	ctx.RequestWithCustomSender(ctx.Sender(), &msg.CommentsObReadyMsg{}, c.pid)
 }

@@ -15,6 +15,7 @@ func (a *ArticlesListOb) init(ctx actor.Context) error {
 	a.pid = ctx.Self()
 	a.parent = ctx.Parent()
 	a.instId, _ = util.GetInstIdFromPid(a.pid)
+	a.ctx = ctx
 
 	a.spawnCommentsObs(ctx)
 
