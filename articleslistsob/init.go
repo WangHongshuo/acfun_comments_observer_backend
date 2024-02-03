@@ -8,6 +8,7 @@ import (
 	"github.com/WangHongshuo/acfun_comments_observer_backend/internal/util"
 	"github.com/WangHongshuo/acfun_comments_observer_backend/msg"
 	"github.com/asynkron/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/scheduler"
 )
 
 func (a *ArticlesListOb) init(ctx actor.Context) error {
@@ -16,9 +17,12 @@ func (a *ArticlesListOb) init(ctx actor.Context) error {
 	a.parent = ctx.Parent()
 	a.instId, _ = util.GetInstIdFromPid(a.pid)
 	a.ctx = ctx
+	a.timer = scheduler.NewTimerScheduler(ctx)
+	a.notReadyMap = make(map[string]struct{}, 0)
+	a.notFinishedMap = make(map[string]struct{}, 0)
+	a.config = cfg.GlobalConfig.Observers["articles"]
 
 	a.spawnCommentsObs(ctx)
-
 	return nil
 }
 
@@ -26,9 +30,8 @@ func (a *ArticlesListOb) spawnCommentsObs(ctx actor.Context) error {
 	props := actor.PropsFromProducer(func() actor.Actor { return &commentsob.CommentsOb{} })
 	commentsObConfig := cfg.GlobalConfig.Observers["comments"]
 	commentsObSpec := commentsObConfig.Spec
-	articlesListObSpec := cfg.GlobalConfig.Observers["articles"].Spec
+	articlesListObSpec := a.config.Spec
 	prefix := commentsObConfig.Prefix + util.ActorNameSuffixFmt
-	a.notReadyMap = make(map[string]struct{}, 0)
 
 	start, end := util.CalculateChildrenIdRangeFromInstSpec(articlesListObSpec, commentsObSpec, a.instId)
 

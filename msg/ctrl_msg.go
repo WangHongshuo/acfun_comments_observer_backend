@@ -9,3 +9,5 @@ type ObserveArticlesListTaskMsg struct {
 type ObserveCommentsTaskMsg struct {
 	Aids []int64
 }
+
+type ObserveCommentsTaskFinishedMsg struct{}

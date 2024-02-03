@@ -3,6 +3,9 @@ package commentsob
 import "github.com/WangHongshuo/acfun_comments_observer_backend/dao/model"
 
 func (c *CommentsOb) commitAll() {
+	if len(c.commentsCache) == 0 {
+		return
+	}
 	c.commitCommentsDataToDb(c.commentsCache)
 	c.commitArticleDataToDb([]model.Article{c.articleCache})
 }

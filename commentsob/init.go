@@ -13,20 +13,17 @@ func (c *CommentsOb) init(ctx actor.Context) error {
 	log.Infof("CommentsOb init")
 
 	c.pid = ctx.Self()
+	c.parent = ctx.Parent()
 	c.instId, _ = util.GetInstIdFromPid(c.pid)
 	c.ctx = ctx
 	c.timer = scheduler.NewTimerScheduler(ctx)
+	c.config = cfg.GlobalConfig.Observers["comments"]
 
 	return nil
 }
 
 func (c *CommentsOb) initResource(ctx actor.Context) {
 	c.db = dao.GlobalPgDb
-	obConfig := cfg.GlobalConfig.Observers["comments"]
-	c.perArticleMinDelay = obConfig.PerArticleMinDelay
-	c.perArticleMaxDelay = obConfig.PerArticleMaxDelay
-	c.perCommentsPageMinDelay = obConfig.PerCommentsPageMinDelay
-	c.perCommentsPageMaxDelay = obConfig.PerCommentsPageMaxDelay
 
 	ctx.RequestWithCustomSender(ctx.Sender(), &msg.CommentsObReadyMsg{}, c.pid)
 }

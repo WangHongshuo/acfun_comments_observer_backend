@@ -17,7 +17,7 @@ type ObController struct {
 }
 
 func (s *ObController) Receive(ctx actor.Context) {
-	log.Infof("%v recv msg: %T\n", ctx.Self().Id, ctx.Message())
+	log.Infof("%v recv msg: %T", ctx.Self().Id, ctx.Message())
 
 	switch ctxMsg := ctx.Message().(type) {
 	case *actor.Started:
@@ -25,7 +25,7 @@ func (s *ObController) Receive(ctx actor.Context) {
 	case *msg.ArticlesListObReadyMsg:
 		s.procArticlesListObReadyMsg(ctx)
 	default:
-		log.Infof("%v recv unknow msg: %T\n", ctx.Self().Id, ctxMsg)
+		log.Infof("%v recv unknow msg: %T", ctx.Self().Id, ctxMsg)
 	}
 }
 

@@ -3,6 +3,7 @@ package commentsob
 import (
 	"fmt"
 
+	"github.com/WangHongshuo/acfun_comments_observer_backend/cfg"
 	"github.com/WangHongshuo/acfun_comments_observer_backend/commentsob/getter"
 	"github.com/WangHongshuo/acfun_comments_observer_backend/dao/model"
 	"github.com/WangHongshuo/acfun_comments_observer_backend/internal/logger"
@@ -20,18 +21,15 @@ var log = logger.NewLogger(actorName)
 type CommentsOb struct {
 	pid    *actor.PID
 	instId int
+	parent *actor.PID
 	ctx    actor.Context
 	timer  *scheduler.TimerScheduler
+	config cfg.ObserverConfig
 
 	db            *gorm.DB
 	aidList       []int64
 	commentsCache []model.Comment
 	articleCache  model.Article
-
-	perArticleMinDelay      int
-	perArticleMaxDelay      int
-	perCommentsPageMinDelay int
-	perCommentsPageMaxDelay int
 }
 
 func (c *CommentsOb) Receive(ctx actor.Context) {
@@ -72,7 +70,7 @@ func (c *CommentsOb) procObserveNextArticleMsg() {
 	if len(c.aidList) == 0 {
 		log.Infof("%v all task finished", c.pid.GetId())
 		c.commentsCache = make([]model.Comment, 0)
-		// TODO: report to ArticlesListOb
+		c.ctx.RequestWithCustomSender(c.parent, &msg.ObserveCommentsTaskFinishedMsg{}, c.pid)
 		return
 	}
 
@@ -81,6 +79,9 @@ func (c *CommentsOb) procObserveNextArticleMsg() {
 	c.aidList = c.aidList[:n-1]
 	log.Infof("%v start observe aid: %v", c.pid.GetId(), aid)
 
+	// init cache
+	c.commentsCache = c.commentsCache[:0]
+	c.articleCache = c.getArticleData(aid)
 	c.startObserveNextCommentsPageTimer(&observeNextCommentsPage{
 		isNewAid: true,
 		aid:      aid,
@@ -93,7 +94,6 @@ func (c *CommentsOb) procObserveNextCommentsPageMsg(ctxMsg *observeNextCommentsP
 	}
 
 	if ctxMsg.isNewAid {
-		c.commentsCache = c.commentsCache[:0]
 		proxyAddr, err := proxypool.GlobalProxyPool.GetHttpsProxy()
 		if err != nil {
 			c.startObserveNextArticleTimer()
@@ -101,7 +101,6 @@ func (c *CommentsOb) procObserveNextCommentsPageMsg(ctxMsg *observeNextCommentsP
 		}
 		ctxMsg.proxyAddr = proxyAddr
 		ctxMsg.nextPage = 1
-		c.articleCache = c.getArticleData(ctxMsg.aid)
 		ctxMsg.oldFloor = int64(c.articleCache.LastFloorNumber)
 	}
 

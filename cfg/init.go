@@ -23,14 +23,17 @@ func init() {
 	articlesListConfig := GlobalConfig.Observers["articles"]
 	if articlesListConfig.Spec > len(GlobalConfig.ArticleUrl) {
 		articlesListConfig.Spec = len(GlobalConfig.ArticleUrl)
-		GlobalConfig.Observers["articles"] = articlesListConfig
 	}
+	if articlesListConfig.IdleTime <= 0 {
+		articlesListConfig.IdleTime = 10
+	}
+	GlobalConfig.Observers["articles"] = articlesListConfig
 
 	commentsConfig := GlobalConfig.Observers["comments"]
 	if commentsConfig.Spec < articlesListConfig.Spec {
 		commentsConfig.Spec = articlesListConfig.Spec
-		GlobalConfig.Observers["comments"] = commentsConfig
 	}
+	GlobalConfig.Observers["comments"] = commentsConfig
 
 	log.Printf("load config succ: \n%+v\n", GlobalConfig)
 }

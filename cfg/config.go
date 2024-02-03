@@ -46,6 +46,9 @@ type ObserverConfig struct {
 	PerArticleMaxDelay      int    `yaml:"perArticleMaxDelay"`
 	PerCommentsPageMinDelay int    `yaml:"perCommentsPageMinDelay"`
 	PerCommentsPageMaxDelay int    `yaml:"perCommentsPageMaxDelay"`
+	IdleTime                int    `yaml:"idleTime"`
+	RetryCount              int    `yaml:"retryCount"`
+	RetryInterval           int    `yaml:"retryInterval"`
 }
 
 type ArticleUrlConfig struct {
