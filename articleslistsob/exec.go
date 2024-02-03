@@ -23,45 +23,45 @@ type ArticlesListOb struct {
 }
 
 func (a *ArticlesListOb) Receive(ctx actor.Context) {
-	log.Infof("%v recv msg: %T\n", ctx.Self().Id, ctx.Message())
+	log.Infof("%v recv msg: %T", ctx.Self().Id, ctx.Message())
 
 	switch ctxMsg := ctx.Message().(type) {
 	case *actor.Started:
 		a.init(ctx)
 	case *msg.ResourceReadyMsg:
 		a.initResource(ctx)
-	case *msg.ArticlesListTaskMsg:
+	case *msg.ObserveArticlesListTaskMsg:
 		a.procArticlesListTaskMsg(ctxMsg, ctx)
 	case *msg.CommentsObReadyMsg:
 		a.procCommentsObReadyMsg(ctx)
 	default:
-		log.Infof("%v recv unknow msg: %T\n", ctx.Self().Id, ctxMsg)
+		log.Infof("%v recv unknow msg: %T", ctx.Self().Id, ctxMsg)
 	}
 }
 
 func (a *ArticlesListOb) procCommentsObReadyMsg(ctx actor.Context) {
 	delete(a.notReadyMap, ctx.Sender().Id)
 	if len(a.notReadyMap) == 0 {
-		log.Errorf("%v all comments exec ready\n", ctx.Self().Id)
+		log.Errorf("%v all comments exec ready", ctx.Self().Id)
 		ctx.RequestWithCustomSender(a.parent, &msg.ArticlesListObReadyMsg{}, a.pid)
 	}
 }
 
-func (a *ArticlesListOb) procArticlesListTaskMsg(ctxMsg *msg.ArticlesListTaskMsg, ctx actor.Context) {
+func (a *ArticlesListOb) procArticlesListTaskMsg(ctxMsg *msg.ObserveArticlesListTaskMsg, ctx actor.Context) {
 	if ctxMsg == nil {
-		log.Errorf("%v recv empty msg: %T\n", ctx.Self().Id, ctxMsg)
+		log.Errorf("%v recv empty msg: %T", ctx.Self().Id, ctxMsg)
 		return
 	}
 
 	proxyAddr, err := proxypool.GlobalProxyPool.GetHttpsProxy()
 	if err != nil {
-		log.Errorf("%v get proxy error: %v\n", ctx.Self().Id, err)
+		log.Errorf("%v get proxy error: %v", ctx.Self().Id, err)
 		return
 	}
 
 	articlesList, err := getter.ArticlesListGetter(proxyAddr, ctxMsg.Target)
 	if err != nil {
-		log.Errorf("%v get articles list by %v error: %v\n", ctx.Self().Id, proxyAddr, err)
+		log.Errorf("%v get articles list by %v error: %v", ctx.Self().Id, proxyAddr, err)
 		return
 	}
 
@@ -74,6 +74,6 @@ func (a *ArticlesListOb) procArticlesListTaskMsg(ctxMsg *msg.ArticlesListTaskMsg
 		i++
 	}
 	for i, pid := range a.children {
-		ctx.RequestWithCustomSender(pid, &msg.CommentsTaskMsg{Aids: aidList[i]}, a.pid)
+		ctx.RequestWithCustomSender(pid, &msg.ObserveCommentsTaskMsg{Aids: aidList[i]}, a.pid)
 	}
 }

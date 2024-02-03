@@ -31,5 +31,5 @@ func (s *ObController) Receive(ctx actor.Context) {
 
 func (s *ObController) procArticlesListObReadyMsg(ctx actor.Context) {
 	config := cfg.GlobalConfig.ArticleUrl[0].Clone()
-	ctx.Send(ctx.Sender(), &msg.ArticlesListTaskMsg{Target: config})
+	ctx.Send(ctx.Sender(), &msg.ObserveArticlesListTaskMsg{Target: config})
 }

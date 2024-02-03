@@ -6,7 +6,6 @@ import (
 	"github.com/WangHongshuo/acfun_comments_observer_backend/commentsob/getter"
 	"github.com/WangHongshuo/acfun_comments_observer_backend/dao/model"
 	"github.com/WangHongshuo/acfun_comments_observer_backend/internal/logger"
-	"github.com/WangHongshuo/acfun_comments_observer_backend/internal/util"
 	"github.com/WangHongshuo/acfun_comments_observer_backend/msg"
 	"github.com/WangHongshuo/acfun_comments_observer_backend/proxypool"
 	"github.com/asynkron/protoactor-go/actor"
@@ -27,6 +26,7 @@ type CommentsOb struct {
 	db            *gorm.DB
 	aidList       []int64
 	commentsCache []model.Comment
+	articleCache  model.Article
 
 	perArticleMinDelay      int
 	perArticleMaxDelay      int
@@ -35,7 +35,7 @@ type CommentsOb struct {
 }
 
 func (c *CommentsOb) Receive(ctx actor.Context) {
-	log.Infof("%v recv msg: %T\n", ctx.Self().Id, ctx.Message())
+	log.Infof("%v recv msg: %T", ctx.Self().Id, ctx.Message())
 	var err error
 
 	switch ctxMsg := ctx.Message().(type) {
@@ -43,140 +43,88 @@ func (c *CommentsOb) Receive(ctx actor.Context) {
 		c.init(ctx)
 	case *msg.ResourceReadyMsg:
 		c.initResource(ctx)
-	case *msg.CommentsTaskMsg:
-		c.procCommentsTaskMsg(ctxMsg)
+	case *msg.ObserveCommentsTaskMsg:
+		c.procObserveCommentsTaskMsg(ctxMsg)
 	case *observeNextCommentsPage:
 		err = c.procObserveNextCommentsPageMsg(ctxMsg)
 	case *observeNextArticle:
-		c.startObserveNextArticle()
+		c.procObserveNextArticleMsg()
 	default:
-		log.Infof("%v recv unknow msg: %T\n", ctx.Self().Id, ctxMsg)
+		log.Infof("%v recv unknow msg: %T", ctx.Self().Id, ctxMsg)
 	}
 
 	if err != nil {
-		log.Errorf("%v proc msg err: %v\n", ctx.Self().Id, err)
+		log.Errorf("%v proc msg err: %v", ctx.Self().Id, err)
 	}
 }
 
-func (c *CommentsOb) procCommentsTaskMsg(ctxMsg *msg.CommentsTaskMsg) {
-	log.Infof("%v recv: %v\n", c.pid.GetId(), ctxMsg)
+func (c *CommentsOb) procObserveCommentsTaskMsg(ctxMsg *msg.ObserveCommentsTaskMsg) {
+	log.Infof("%v recv task: %v", c.pid.GetId(), ctxMsg)
 	if ctxMsg == nil || len(ctxMsg.Aids) == 0 {
 		return
 	}
 
 	c.aidList = ctxMsg.Aids
-	c.timer.SendOnce(util.GetRandomDuration(c.perArticleMinDelay, c.perArticleMaxDelay, int64(c.instId)),
-		c.pid, &observeNextArticle{})
+	c.startObserveNextArticleTimer()
 }
 
-func (c *CommentsOb) startObserveNextArticle() {
+func (c *CommentsOb) procObserveNextArticleMsg() {
 	if len(c.aidList) == 0 {
-		log.Infof("%v all task finished\n", c.pid.GetId())
+		log.Infof("%v all task finished", c.pid.GetId())
+		c.commentsCache = make([]model.Comment, 0)
+		// TODO: report to ArticlesListOb
 		return
 	}
 
 	n := len(c.aidList)
 	aid := c.aidList[n-1]
 	c.aidList = c.aidList[:n-1]
-	log.Infof("%v start observe aid: %v\n", c.pid.GetId(), aid)
-	if err := c.observeComments(aid); err != nil {
-		log.Errorf("%v observe comments error: %v\n", c.pid.GetId(), err)
-	}
-}
+	log.Infof("%v start observe aid: %v", c.pid.GetId(), aid)
 
-func (c *CommentsOb) observeComments(aid int64) error {
-	proxyAddr, err := proxypool.GlobalProxyPool.GetHttpsProxy()
-	if err != nil {
-		return fmt.Errorf("get proxy error: %v", err)
-	}
-	articleData := c.getArticleData(aid)
-	oldFloor := articleData.LastFloorNumber
-	comments, totalPage, err := getter.CommentsGetter(proxyAddr, aid, 1)
-	if err != nil {
-		return fmt.Errorf("get comments error: %v", err)
-	}
-	if len(comments) == 0 || comments[0].Floor <= int64(oldFloor) {
-		return nil
-	}
-
-	newFloor := comments[0].Floor
-	c.commentsCache = make([]model.Comment, 0)
-	for i := range comments {
-		if comments[i].Floor <= int64(oldFloor) {
-			c.commitCommentsDataToDb(c.commentsCache)
-			c.commitArticleDataToDb(model.Article{
-				Aid:             aid,
-				LastFloorNumber: int32(newFloor),
-				IsCompleted:     true,
-			})
-			log.Infof("%v observe comments completed, aid: %v, last floor number: %v, new comments: %v", c.pid.GetId(), aid, newFloor, len(c.commentsCache))
-			c.commentsCache = make([]model.Comment, 0)
-			c.timer.SendOnce(util.GetRandomDuration(c.perArticleMinDelay, c.perArticleMaxDelay, int64(c.instId)), c.pid, &observeNextArticle{})
-			return nil
-		}
-		// avoid duplicate comments when observe next page
-		n := len(c.commentsCache)
-		if n > 0 && c.commentsCache[n-1].FloorNumber <= int32(comments[i].Floor) {
-			continue
-		}
-		c.commentsCache = append(c.commentsCache, model.Comment{
-			Cid:         comments[i].Cid,
-			Aid:         aid,
-			FloorNumber: int32(comments[i].Floor),
-			Comment:     comments[i].Content,
-		})
-	}
-
-	if 1 == int(totalPage) {
-		c.commitCommentsDataToDb(c.commentsCache)
-		c.commitArticleDataToDb(model.Article{
-			Aid:             aid,
-			LastFloorNumber: int32(newFloor),
-			IsCompleted:     true,
-		})
-		log.Infof("%v observe comments completed, aid: %v, last floor number: %v, new comments: %v", c.pid.GetId(), aid, newFloor, len(c.commentsCache))
-		c.commentsCache = make([]model.Comment, 0)
-		c.timer.SendOnce(util.GetRandomDuration(c.perArticleMinDelay, c.perArticleMaxDelay, int64(c.instId)), c.pid, &observeNextArticle{})
-		return nil
-	}
-
-	c.timer.SendOnce(util.GetRandomDuration(c.perCommentsPageMinDelay, c.perCommentsPageMinDelay, int64(c.instId)), c.pid,
-		&observeNextCommentsPage{
-			aid:       aid,
-			oldFloor:  int64(oldFloor),
-			newFloor:  newFloor,
-			nextPage:  2,
-			totalPage: int(totalPage),
-			proxyAddr: proxyAddr,
-		})
-	return nil
+	c.startObserveNextCommentsPageTimer(&observeNextCommentsPage{
+		isNewAid: true,
+		aid:      aid,
+	})
 }
 
 func (c *CommentsOb) procObserveNextCommentsPageMsg(ctxMsg *observeNextCommentsPage) error {
-	log.Infof("ob next page for aid: %v, curr: %v, total: %v", ctxMsg.aid, ctxMsg.nextPage, ctxMsg.totalPage)
-	comments, totalPage, err := getter.CommentsGetter(ctxMsg.proxyAddr, ctxMsg.aid, ctxMsg.nextPage)
-	if err != nil {
-		return fmt.Errorf("get comments error: %v", err)
+	if ctxMsg == nil {
+		return fmt.Errorf("observe next comments page msg is nil")
 	}
 
+	if ctxMsg.isNewAid {
+		c.commentsCache = c.commentsCache[:0]
+		proxyAddr, err := proxypool.GlobalProxyPool.GetHttpsProxy()
+		if err != nil {
+			c.startObserveNextArticleTimer()
+			return fmt.Errorf("get proxy error: %v", err)
+		}
+		ctxMsg.proxyAddr = proxyAddr
+		ctxMsg.nextPage = 1
+		c.articleCache = c.getArticleData(ctxMsg.aid)
+		ctxMsg.oldFloor = int64(c.articleCache.LastFloorNumber)
+	}
+
+	comments, totalPage, err := getter.CommentsGetter(ctxMsg.proxyAddr, ctxMsg.aid, ctxMsg.nextPage)
+	if err != nil {
+		c.startObserveNextArticleTimer()
+		return fmt.Errorf("get comments error: %v", err)
+	}
+	log.Infof("ob next page for aid: %v, curr: %v, total: %v", ctxMsg.aid, ctxMsg.nextPage, totalPage)
+
+	isFinished := false
 	for i := range comments {
 		if comments[i].Floor <= int64(ctxMsg.oldFloor) {
-			c.commitCommentsDataToDb(c.commentsCache)
-			c.commitArticleDataToDb(model.Article{
-				Aid:             ctxMsg.aid,
-				LastFloorNumber: int32(ctxMsg.newFloor),
-				IsCompleted:     true,
-			})
-			log.Infof("%v observe comments completed, aid: %v, last floor number: %v, new comments: %v", c.pid.GetId(), ctxMsg.aid, ctxMsg.newFloor, len(c.commentsCache))
-			c.commentsCache = make([]model.Comment, 0)
-			c.timer.SendOnce(util.GetRandomDuration(c.perArticleMinDelay, c.perArticleMaxDelay, int64(c.instId)), c.pid, &observeNextArticle{})
-			return nil
+			isFinished = true
+			break
 		}
+
 		// avoid duplicate comments when observe next page
 		n := len(c.commentsCache)
 		if n > 0 && c.commentsCache[n-1].FloorNumber <= int32(comments[i].Floor) {
 			continue
 		}
+
 		c.commentsCache = append(c.commentsCache, model.Comment{
 			Cid:         comments[i].Cid,
 			Aid:         ctxMsg.aid,
@@ -185,39 +133,28 @@ func (c *CommentsOb) procObserveNextCommentsPageMsg(ctxMsg *observeNextCommentsP
 		})
 	}
 
-	if ctxMsg.nextPage == int(totalPage) {
-		c.commitCommentsDataToDb(c.commentsCache)
-		c.commitArticleDataToDb(model.Article{
-			Aid:             ctxMsg.aid,
-			LastFloorNumber: int32(ctxMsg.newFloor),
-			IsCompleted:     true,
-		})
-		log.Infof("%v observe comments completed, aid: %v, last floor number: %v, new comments: %v", c.pid.GetId(), ctxMsg.aid, ctxMsg.newFloor, len(c.commentsCache))
-		c.commentsCache = make([]model.Comment, 0)
-		c.timer.SendOnce(util.GetRandomDuration(c.perArticleMinDelay, c.perArticleMaxDelay, int64(c.instId)), c.pid, &observeNextArticle{})
+	if len(c.commentsCache) > 0 {
+		c.articleCache.LastFloorNumber = int32(c.commentsCache[0].FloorNumber)
+	}
+
+	if isFinished || ctxMsg.nextPage == int(totalPage) {
+		c.articleCache.IsCompleted = true
+		c.commitAll()
+		log.Infof("%v observe comments completed, aid: %v, newest last floor number: %v, new comments: %v",
+			c.pid.GetId(), ctxMsg.aid, c.articleCache.LastFloorNumber, len(c.commentsCache))
+		c.startObserveNextArticleTimer()
 		return nil
 	}
 
-	c.timer.SendOnce(util.GetRandomDuration(c.perCommentsPageMinDelay, c.perCommentsPageMinDelay, int64(c.instId)), c.pid,
-		&observeNextCommentsPage{
-			aid:       ctxMsg.aid,
-			oldFloor:  int64(ctxMsg.oldFloor),
-			newFloor:  ctxMsg.newFloor,
-			nextPage:  ctxMsg.nextPage + 1,
-			totalPage: int(totalPage),
-			proxyAddr: ctxMsg.proxyAddr,
-		})
+	c.startObserveNextCommentsPageTimer(&observeNextCommentsPage{
+		aid:       ctxMsg.aid,
+		oldFloor:  int64(ctxMsg.oldFloor),
+		nextPage:  ctxMsg.nextPage + 1,
+		proxyAddr: ctxMsg.proxyAddr,
+	})
 
-	log.Infof("end ob next page for aid: %v", ctxMsg.aid)
+	log.Infof("end ob next page for aid: %v, curr: %v, total: %v", ctxMsg.aid, ctxMsg.nextPage, totalPage)
 	return nil
-}
-
-func (c *CommentsOb) commitCommentsDataToDb(data []model.Comment) {
-	c.db.Save(data)
-}
-
-func (c *CommentsOb) commitArticleDataToDb(data model.Article) {
-	c.db.Save([]model.Article{data})
 }
 
 func (c *CommentsOb) getArticleData(aid int64) model.Article {
