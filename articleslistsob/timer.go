@@ -8,6 +8,10 @@ import (
 
 func (a *ArticlesListOb) startIdleTimer() {
 	idleTime := time.Duration(a.config.IdleTime) * time.Minute
-	log.Infof("%v all children finished task, start idle: %v", a.pid.Id, idleTime)
+	log.Infof("%v start idle: %v", a.pid.Id, idleTime)
 	a.timer.SendOnce(idleTime, a.pid, &msg.ObserveArticlesListTaskMsg{Target: a.observeConfig})
+}
+
+func (a *ArticlesListOb) startRetryTimer() {
+	a.timer.SendOnce(time.Duration(a.config.RetryInterval)*time.Second, a.pid, &msg.ObserveArticlesListTaskMsg{Target: a.observeConfig})
 }
