@@ -139,9 +139,12 @@ func (c *CommentsOb) procObserveNextCommentsPageMsg(ctxMsg *observeNextCommentsP
 
 	if isFinished || ctxMsg.nextPage == int(totalPage) {
 		c.articleCache.IsCompleted = true
+		oldCommentsCount := c.articleCache.CommentsCount
+		c.articleCache.CommentsCount += int32(len(c.commentsCache))
 		c.commitAll()
-		log.Infof("%v observe comments completed, aid: %v, newest last floor number: %v, new comments: %v",
-			c.pid.GetId(), ctxMsg.aid, c.articleCache.LastFloorNumber, len(c.commentsCache))
+		log.Infof("%v ob aid: %v completed, new last floor number: %v, new comments: %v, from: %v, to: %v",
+			c.pid.GetId(), ctxMsg.aid, c.articleCache.LastFloorNumber, len(c.commentsCache),
+			oldCommentsCount, c.articleCache.CommentsCount)
 		c.startObserveNextArticleTimer()
 		return nil
 	}

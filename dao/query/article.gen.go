@@ -30,6 +30,7 @@ func newArticle(db *gorm.DB, opts ...gen.DOOption) article {
 	_article.Aid = field.NewInt64(tableName, "aid")
 	_article.LastFloorNumber = field.NewInt32(tableName, "last_floor_number")
 	_article.IsCompleted = field.NewBool(tableName, "is_completed")
+	_article.CommentsCount = field.NewInt32(tableName, "comments_count")
 
 	_article.fillFieldMap()
 
@@ -43,6 +44,7 @@ type article struct {
 	Aid             field.Int64 // Article ID
 	LastFloorNumber field.Int32 // Last Comment Floor Number
 	IsCompleted     field.Bool  // Is get all comments
+	CommentsCount   field.Int32 // Comments Count
 
 	fieldMap map[string]field.Expr
 }
@@ -62,6 +64,7 @@ func (a *article) updateTableName(table string) *article {
 	a.Aid = field.NewInt64(table, "aid")
 	a.LastFloorNumber = field.NewInt32(table, "last_floor_number")
 	a.IsCompleted = field.NewBool(table, "is_completed")
+	a.CommentsCount = field.NewInt32(table, "comments_count")
 
 	a.fillFieldMap()
 
@@ -86,10 +89,11 @@ func (a *article) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *article) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 3)
+	a.fieldMap = make(map[string]field.Expr, 4)
 	a.fieldMap["aid"] = a.Aid
 	a.fieldMap["last_floor_number"] = a.LastFloorNumber
 	a.fieldMap["is_completed"] = a.IsCompleted
+	a.fieldMap["comments_count"] = a.CommentsCount
 }
 
 func (a article) clone(db *gorm.DB) article {
