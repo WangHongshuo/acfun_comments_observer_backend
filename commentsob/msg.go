@@ -1,11 +1,9 @@
 package commentsob
 
 type observeNextCommentsPage struct {
-	isNewAid  bool
-	aid       int64
-	oldFloor  int64
-	nextPage  int
-	proxyAddr string
+	aid      int64
+	oldFloor int64
+	nextPage int
 }
 
 type observeNextArticle struct{}

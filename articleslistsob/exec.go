@@ -28,6 +28,7 @@ type ArticlesListOb struct {
 	notReadyMap    map[string]struct{}
 	notFinishedMap map[string]struct{}
 	retryCount     int
+	proxyCache     string
 
 	observeConfig cfg.ArticleUrlConfig
 }
@@ -66,6 +67,7 @@ func (a *ArticlesListOb) procArticlesListTaskMsg(ctxMsg *msg.ObserveArticlesList
 	}
 
 	a.observeConfig = ctxMsg.Target
+	a.proxyCache = ""
 	if err := a.observeArticlesListAndDispatchToChildren(a.observeConfig); err != nil {
 		log.Errorf("%v observe articles list error: %v", a.pid.Id, err)
 
@@ -77,7 +79,6 @@ func (a *ArticlesListOb) procArticlesListTaskMsg(ctxMsg *msg.ObserveArticlesList
 		}
 
 		a.retryCount++
-		log.Errorf("%v start retry: %v", a.pid.Id, a.retryCount)
 		a.startRetryTimer()
 		return
 	}
@@ -85,14 +86,17 @@ func (a *ArticlesListOb) procArticlesListTaskMsg(ctxMsg *msg.ObserveArticlesList
 }
 
 func (a *ArticlesListOb) observeArticlesListAndDispatchToChildren(config cfg.ArticleUrlConfig) error {
-	proxyAddr, err := proxypool.GlobalProxyPool.GetHttpsProxy()
-	if err != nil {
-		return fmt.Errorf("get proxy error: %v", err)
+	var err error
+	if a.proxyCache == "" {
+		if a.proxyCache, err = proxypool.GlobalProxyPool.GetHttpsProxy(); err != nil {
+			a.proxyCache = ""
+			return fmt.Errorf("get proxy error: %v", err)
+		}
 	}
 
-	articlesList, err := getter.ArticlesListGetter(proxyAddr, config)
+	articlesList, err := getter.ArticlesListGetter(a.proxyCache, config)
 	if err != nil {
-		return fmt.Errorf("get articles list by %v error: %v", proxyAddr, err)
+		return fmt.Errorf("get articles list by %v error: %v", a.proxyCache, err)
 	}
 
 	selfCommentsExecutorNum := len(a.children)

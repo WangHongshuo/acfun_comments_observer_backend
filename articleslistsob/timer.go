@@ -13,5 +13,6 @@ func (a *ArticlesListOb) startIdleTimer() {
 }
 
 func (a *ArticlesListOb) startRetryTimer() {
+	log.Errorf("%v start retry: %v", a.pid.Id, a.retryCount)
 	a.timer.SendOnce(time.Duration(a.config.RetryInterval)*time.Second, a.pid, &msg.ObserveArticlesListTaskMsg{Target: a.observeConfig})
 }

@@ -30,6 +30,8 @@ type CommentsOb struct {
 	aidList       []int64
 	commentsCache []model.Comment
 	articleCache  model.Article
+	proxyCache    string
+	retryCount    int
 }
 
 func (c *CommentsOb) Receive(ctx actor.Context) {
@@ -44,7 +46,7 @@ func (c *CommentsOb) Receive(ctx actor.Context) {
 	case *msg.ObserveCommentsTaskMsg:
 		c.procObserveCommentsTaskMsg(ctxMsg)
 	case *observeNextCommentsPage:
-		err = c.procObserveNextCommentsPageMsg(ctxMsg)
+		c.procObserveNextCommentsPageMsg(ctxMsg)
 	case *observeNextArticle:
 		c.procObserveNextArticleMsg()
 	default:
@@ -63,6 +65,7 @@ func (c *CommentsOb) procObserveCommentsTaskMsg(ctxMsg *msg.ObserveCommentsTaskM
 	}
 
 	c.aidList = ctxMsg.Aids
+	c.proxyCache = ""
 	c.startObserveNextArticleTimer()
 }
 
@@ -82,31 +85,48 @@ func (c *CommentsOb) procObserveNextArticleMsg() {
 	// init cache
 	c.commentsCache = c.commentsCache[:0]
 	c.articleCache = c.getArticleData(aid)
+	c.retryCount = 0
 	c.startObserveNextCommentsPageTimer(&observeNextCommentsPage{
-		isNewAid: true,
 		aid:      aid,
+		nextPage: 1,
+		oldFloor: int64(c.articleCache.LastFloorNumber),
 	})
 }
 
-func (c *CommentsOb) procObserveNextCommentsPageMsg(ctxMsg *observeNextCommentsPage) error {
+func (c *CommentsOb) procObserveNextCommentsPageMsg(ctxMsg *observeNextCommentsPage) {
 	if ctxMsg == nil {
-		return fmt.Errorf("observe next comments page msg is nil")
+		log.Errorf("%v observe next comments page msg is nil", c.pid.Id)
+		c.startObserveNextArticleTimer()
+		return
 	}
 
-	if ctxMsg.isNewAid {
-		proxyAddr, err := proxypool.GlobalProxyPool.GetHttpsProxy()
-		if err != nil {
+	if err := c.observeNextCommentsPage(ctxMsg); err != nil {
+		log.Errorf("%v observe next comments page error: %v", c.pid.Id, err)
+
+		if c.retryCount >= c.config.RetryCount {
+			log.Errorf("%v exceed max retry count: %v, ob next article", c.pid.Id, c.config.RetryCount)
+			c.retryCount = 0
 			c.startObserveNextArticleTimer()
+			return
+		}
+
+		c.retryCount++
+		c.startRetryTimer(ctxMsg)
+	}
+}
+
+func (c *CommentsOb) observeNextCommentsPage(ctxMsg *observeNextCommentsPage) error {
+	var err error
+
+	if c.proxyCache == "" {
+		if c.proxyCache, err = proxypool.GlobalProxyPool.GetHttpsProxy(); err != nil {
+			c.proxyCache = ""
 			return fmt.Errorf("get proxy error: %v", err)
 		}
-		ctxMsg.proxyAddr = proxyAddr
-		ctxMsg.nextPage = 1
-		ctxMsg.oldFloor = int64(c.articleCache.LastFloorNumber)
 	}
 
-	comments, totalPage, err := getter.CommentsGetter(ctxMsg.proxyAddr, ctxMsg.aid, ctxMsg.nextPage)
+	comments, totalPage, err := getter.CommentsGetter(c.proxyCache, ctxMsg.aid, ctxMsg.nextPage)
 	if err != nil {
-		c.startObserveNextArticleTimer()
 		return fmt.Errorf("get comments error: %v", err)
 	}
 	log.Infof("ob next page for aid: %v, curr: %v, total: %v", ctxMsg.aid, ctxMsg.nextPage, totalPage)
@@ -149,10 +169,9 @@ func (c *CommentsOb) procObserveNextCommentsPageMsg(ctxMsg *observeNextCommentsP
 	}
 
 	c.startObserveNextCommentsPageTimer(&observeNextCommentsPage{
-		aid:       ctxMsg.aid,
-		oldFloor:  int64(ctxMsg.oldFloor),
-		nextPage:  ctxMsg.nextPage + 1,
-		proxyAddr: ctxMsg.proxyAddr,
+		aid:      ctxMsg.aid,
+		oldFloor: int64(ctxMsg.oldFloor),
+		nextPage: ctxMsg.nextPage + 1,
 	})
 
 	log.Infof("end ob next page for aid: %v, curr: %v, total: %v", ctxMsg.aid, ctxMsg.nextPage, totalPage)
