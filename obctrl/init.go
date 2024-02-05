@@ -18,7 +18,9 @@ func (s *ObController) init(ctx actor.Context) error {
 	s.pid = ctx.Self()
 
 	s.spawnArticlesListExecutors(ctx)
-	s.initGlobalPgDb(ctx)
+	if err := s.initGlobalPgDb(ctx); err != nil {
+		panic(err)
+	}
 
 	return nil
 }
