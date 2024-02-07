@@ -3,8 +3,6 @@ package cfg
 import (
 	"fmt"
 	"log"
-	"path/filepath"
-	"runtime"
 
 	"github.com/spf13/viper"
 )
@@ -12,9 +10,7 @@ import (
 var GlobalConfig *Config
 
 func init() {
-	_, filename, _, _ := runtime.Caller(0)
-	dir := filepath.Dir(filename)
-	if err := loadConfigByPath(dir + "\\config.yaml"); err != nil {
+	if err := loadConfigByPath("./cfg/config.yaml"); err != nil {
 		log.Fatalf("load config fail: %+v\n", err)
 		return
 	}

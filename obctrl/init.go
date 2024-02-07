@@ -48,8 +48,8 @@ func (s *ObController) initGlobalPgDb(ctx actor.Context) error {
 	dbConfig := cfg.GlobalConfig.Database
 	actorsSpec := cfg.GlobalConfig.Observers["comments"].Spec + cfg.GlobalConfig.Observers["articles"].Spec
 
-	dsn := fmt.Sprintf("user=%v password=%v port=%v dbname=%v sslmode=disable TimeZone=Asia/Shanghai",
-		dbConfig.UserName, dbConfig.Password, dbConfig.Port, dbConfig.DbName)
+	dsn := fmt.Sprintf("user=%v password=%v host=%v port=%v dbname=%v sslmode=disable TimeZone=Asia/Shanghai",
+		dbConfig.UserName, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.DbName)
 
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DSN:                  dsn,
