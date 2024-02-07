@@ -3,6 +3,8 @@ package cfg
 import (
 	"fmt"
 	"log"
+	"path/filepath"
+	"runtime"
 
 	"github.com/spf13/viper"
 )
@@ -10,12 +12,28 @@ import (
 var GlobalConfig *Config
 
 func init() {
-	if err := loadConfigByPath("./cfg/config.yaml"); err != nil {
-		log.Fatalf("load config fail: %+v\n", err)
+	// for product
+	if err := loadConfigByPath("./cfg/config.yaml"); err == nil {
+		correctionConfig()
+		log.Printf("load config for product succ: \n%+v\n", GlobalConfig)
+		return
+	} else {
+		log.Printf("load config for product fail: %+v\n", err)
+	}
+
+	// for test
+	_, filename, _, _ := runtime.Caller(0)
+	dir := filepath.Dir(filename)
+	if err := loadConfigByPath(dir + "/config.yaml"); err != nil {
+		log.Fatalf("load config for test fail: %+v\n", err)
 		return
 	}
 
-	// correction
+	correctionConfig()
+	log.Printf("load config for test succ: \n%+v\n", GlobalConfig)
+}
+
+func correctionConfig() {
 	articlesListConfig := GlobalConfig.Observers["articles"]
 	if articlesListConfig.Spec > len(GlobalConfig.ArticleUrl) {
 		articlesListConfig.Spec = len(GlobalConfig.ArticleUrl)
@@ -30,8 +48,6 @@ func init() {
 		commentsConfig.Spec = articlesListConfig.Spec
 	}
 	GlobalConfig.Observers["comments"] = commentsConfig
-
-	log.Printf("load config succ: \n%+v\n", GlobalConfig)
 }
 
 func loadConfigByPath(path string) error {
