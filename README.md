@@ -1,5 +1,11 @@
 # AcFun Comments Observer Backend
-A站评论观察者后端
+A站评论观察者后端，尽可能完整收录A站文章区下所有评论，无外部访问功能，需搭配独立WEB端进行查询数据。
+
+WEB端Repo请访问这里：[LINK](https://github.com/WangHongshuo/acfun_comments_observer_web)
+
+## 在线预览
+
+http://47.100.72.81:5000/acfunob （丐中丐配置，勿压测）
 
 ## 依赖
 
@@ -13,7 +19,7 @@ A站评论观察者后端
 - zap
 - vipper
 
-## 结构
+## Actor结构
 
 ```
 Main
