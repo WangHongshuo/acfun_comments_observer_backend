@@ -5,7 +5,7 @@ WEB端Repo请访问这里：[LINK](https://github.com/WangHongshuo/acfun_comment
 
 ## 在线预览
 
-http://47.100.72.81:5000/acfunob （丐中丐配置，勿压测）
+http://47.100.72.81:5000 （丐中丐配置，勿压测）
 
 ## 依赖
 
