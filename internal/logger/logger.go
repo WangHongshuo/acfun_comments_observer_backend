@@ -10,17 +10,30 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func NewLogger(name string) *zap.SugaredLogger {
-	atom := zap.NewAtomicLevel()
-	core := zapcore.NewCore(newEncoder(), newLogWriter(cfg.GlobalConfig.Logger.OnSave), atom)
-	logger := zap.New(core, zap.AddCaller()).Sugar().Named(name)
+var (
+	atom   zap.AtomicLevel
+	core   zapcore.Core
+	logger *zap.SugaredLogger
+)
+
+func init() {
+	atom = zap.NewAtomicLevel()
 	atom.SetLevel(convertCfgLevelToZapCoreLevel(cfg.GlobalConfig.Logger.Level))
-	return logger
+	core = zapcore.NewCore(newEncoder(), newLogWriter(cfg.GlobalConfig.Logger.OnSave), atom)
+	logger = zap.New(core, zap.AddCaller()).Sugar()
 }
 
-func newLogWriter(isWriteLogToFiles bool) zapcore.WriteSyncer {
+func NewLogger(name string) *zap.SugaredLogger {
+	return logger.Named(name)
+}
+
+func WatiLogger() {
+	logger.Sync()
+}
+
+func newLogWriter(onSave bool) zapcore.WriteSyncer {
 	syncConsole := zapcore.AddSync(os.Stderr)
-	if !isWriteLogToFiles {
+	if !onSave {
 		return zapcore.AddSync(syncConsole)
 	}
 	config := cfg.GlobalConfig.Logger

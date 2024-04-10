@@ -1,17 +1,18 @@
 package main
 
 import (
+	// import config first
 	_ "github.com/WangHongshuo/acfun_comments_observer_backend/cfg"
 	"github.com/WangHongshuo/acfun_comments_observer_backend/internal/logger"
 	"github.com/WangHongshuo/acfun_comments_observer_backend/obctrl"
 	"github.com/WangHongshuo/acfun_comments_observer_backend/proxypool"
-	console "github.com/asynkron/goconsole"
 	"github.com/asynkron/protoactor-go/actor"
 )
 
 var log = logger.NewLogger("Main")
 
 func main() {
+	defer logger.WatiLogger()
 	log.Info("main start, spawn actors")
 
 	proxypool.Init()
@@ -23,5 +24,5 @@ func main() {
 	}
 
 	log.Info("spawn succ")
-	console.ReadLine()
+	select {}
 }
